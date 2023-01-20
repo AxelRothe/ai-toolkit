@@ -1,41 +1,206 @@
+
+
+@color-a: #fed800;
+@color-b: #1c2226;
+@color-1: lighten(@color-b, 10%);
+@color-2: lighten(@color-1, 10%);
+@color-3: lighten(@color-2, 20%);
+@color-4: lighten(@color-3, 20%);
+
+@screen-xs: 375px;
+@screen-sm: 768px;
+@screen-md: 992px;
+@screen-lg: 1200px;
+
 * {
   box-sizing: border-box;
   padding: 0;
   margin:0;
+  font-family: 'SF Pro', sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #f1f1f1;
+  font-weight: 300;
+}
+pre {
+  font-family: 'SF Mono', sans-serif;
+}
+
+/* WEBKIT */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: @color-1;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid @color-2;
+}
+::-webkit-scrollbar-thumb {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+  background-color: @color-2;
+  //border-radius: 0.25em;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: @color-2;
 }
 
 body {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #333;
-  background: #222;
+  background: @color-b;
+}
+
+button {
+    background: none;
+    padding: 0.5em;
+    color: #f1f1f1;
+    font-size: 16px;
+    font-weight: 300;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid rgba(255,255,255,0.2);
+    &:hover {
+      background: @color-2;
+    }
+}
+
+input {
+    background: none;
+    padding: 0.5em;
+    color: #f1f1f1;
+    font-size: 16px;
+    font-weight: 300;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid rgba(255,255,255,0.2);
+    &:focus {
+        background: @color-2;
+    }
+}
+
+.no-token {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  & > * {
+    margin: 0.5em;
+  }
 }
 
 .chat-bot {
+  margin: 2em auto;
+  max-width: 1200px;
+  display: grid;
+  height: calc(100vh - 4em);
+  grid-template-rows: 100px calc(100vh - 4em - 200px - 100px) 200px;
+
   .chat-bot-information {
     color: #fedb00;
     font-size: 1.5em;
     padding: 0.5em;
     text-align: center;
   }
+
+  .outer {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+
+  .chat-bot-body-outer {
+    height: 100%;
+    width: 100%;
+    overflow-y: scroll;
+    .chat-bot-body {
+      height: 100%;
+      padding: 2em 1em;
+    }
+  }
+
+  .chat-bot-chat-history {
+    background: darken(@color-b, 2%, true);
+    padding: 1em;
+    h2 {
+      color: @color-2;
+      font-size: 1em;
+      border-bottom: 1px solid @color-2;
+      margin-bottom: 1em;
+    }
+  }
+
   .prompt {
-    background: #333;
-    color: #fff;
-    padding: 10px;
-    font-size: 1.2em;
-    font-weight: 700;
-    margin-bottom: 20px;
+
+    &:not(:first-child){
+        margin-top: 1em;
+    }
+
     .prompt-text {
+
+      text-align: right;
+      .prompt-text-info {
+        color: @color-3;
+        font-size: 0.75em;
+        font-weight: 500;
+        padding: 0.5em 0;
+      }
+      .prompt-text-content {
+        color: #f1f1f1;
+        font-size: 0.8em;
+        background: darken(@color-b, 2%, true);
+        border-radius: 1em;
+        box-shadow: 0em 1em 1em darken(@color-b, 3%, true);
+        border: 1px solid @color-b;
+        white-space: pre-wrap;
+        padding: 1em;
+      }
+    }
+    .prompt-response {
+      margin-top: 1em;
+      .prompt-text-info {
+        color: @color-3;
+        font-size: 0.75em;
+        font-weight: 500;
+        padding: 0.5em 0;
+      }
+      .prompt-text-content {
+        color: #f1f1f1;
+        font-size: 0.8em;
+        background: darken(@color-b, 2%, true);
+        border-radius: 1em;
+        box-shadow: 0em 1em 1em darken(@color-b, 3%, true);
+        border: 1px solid @color-b;
+        white-space: pre-wrap;
+        padding: 1em;
+      }
+
+
+    }
+  }
+
+  .prompt-input {
+    margin-top: 2em;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    width: 100%;
+    height: auto;
+    box-shadow: 0em 1em 1em rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+
+    .prompt-input-text {
+      background: @color-1;
+      box-shadow: inset 0em 0em 1em rgba(0,0,0,0.2);
+
       textarea {
         width: 100%;
-        height: 200px;
+        height: 100%;
         border: 0;
-        background: #333;
+        background: none;
         color: #999;
         padding: 10px;
-        font-size: 1.2em;
-        font-weight: 700;
         border-radius: 5px;
         resize: none;
 
@@ -45,20 +210,26 @@ body {
         }
       }
     }
-    .prompt-response {
+    .prompt-input-action {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      transition: all 0.2s ease-in-out;
+      &:hover {
+        background: @color-1;
+        button {
+          color: #f9c500;
+        }
+      }
       button {
-        background: #fedb00;
-        color: #333;
-        padding: 10px;
-        font-size: 1.2em;
-        font-weight: 700;
+        background: none;
+        color: #fedb00;
+        padding: 1em;
+        font-size: 1em;
+        font-weight: 300;
         border: 0;
-        border-radius: 5px;
         cursor: pointer;
         transition: all 0.3s ease;
-        &:hover {
-          background: #f9c500;
-        }
       }
     }
   }

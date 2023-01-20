@@ -1,26 +1,98 @@
-# openAI interface - Interactive CLI, Shell & REST
+# openAI cli tools - (Interactive) CLI & REST
 
 A CLI App for OpenAI Models is a command line interface app that allows users to easily interface with OpenAI models and services. It provides an intuitive chatbot UI, a suite of tools for use in the terminal, and a REST API. Users must provide their own API session and API keys to use the app. It is designed to make it easy to explore and use OpenAI's models and services, and is suitable for developers, data scientists, and anyone who wishes to use OpenAI's services.
 
+This includes a web server for chatting and managing prompts, and a REST API for interacting with the app.
+
 ## Installation
 
-Instructions for how to install your app, such as:
-
 ```
-npm install -g openai-cli-tools
+npm install openai-cli-tools
 ```
 
 ## Build
 
+You will need to build the app before you can use it. This will create a `build` folder with the compiled app.
+
 ```shell
 #build 
 npm run build
-#package
-npm run pkg
 #build and run with server
 npm run server
-#build and copy to /usr/local/bin
-npm run install
+#just start cli, will display help
+npm run start
+```
+
+## Usage
+
+### CLI
+
+```shell
+#start cli
+node build
+#start interactive cli
+node build chat
+#prompt cli and get response as JSON
+node build prompt "my prompt" --temperature 0.5 --max_tokens 100 --model "text-davinci-003" --json
+#start cli with server
+node build server
+#start cli with server and port
+node build server --port 3000
+```
+### REST
+
+`prompt` and `chat` are all available as REST endpoints. The server is available at `http://localhost:8000` by default, and can be changed with the `--port` flag or by setting it in the .env file.
+
+#### Authorization
+
+The app requires an OpenAI API key and session to be set in the .env file. The .env file is not included in the repo, and must be created by the user. The .env file should be placed in the root directory of the project. The .env file should contain the following:
+
+```
+OPENAI_API_KEY="<YOUR_API_KEY>"
+OPENAI_API_SESSION_TOKEN="<SESSION_TOKEN>"
+SERVER_PORT="8000"
+SERVER_PATH_CACHE="/path/to/cache"
+SERVER_TOKENS="/path/to/cache/tokens.json"
+```
+
+#### Endpoints
+
+```
+POST /api/prompt
+{
+    "prompt": "my prompt",
+    "temperature": 0.5,
+    "max_tokens": 100,
+    "model": "text-davinci-003"
+}
+```
+
+```
+POST /api/chat/new -> returns id
+{
+    "prompt": "my prompt",
+    "temperature": 0.5,
+    "max_tokens": 100,
+    "model": "text-davinci-003"
+}
+```
+
+```
+POST /api/chat/:id
+{
+    "prompt": "my message",
+    "temperature": 0.5,
+    "max_tokens": 100,
+    "model": "text-davinci-003"
+}
+```
+
+```
+GET /api/chat/:id
+```
+
+```
+DELETE /api/chat/:id
 ```
 
 ## Contributing

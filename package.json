@@ -5,7 +5,8 @@
   "bin": "build/index.js",
   "scripts": {
     "build": "webpack --config webpack.dev.js && ncc build src/index.ts -o build -e [mod]",
-    "server": "npm run build && node build server"
+    "server": "npm run build && node build server",
+    "start": "npm run build && node build"
   },
   "keywords": [],
   "author": "Axel Rothe",

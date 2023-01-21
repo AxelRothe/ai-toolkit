@@ -1,6 +1,6 @@
 {
   "name": "openai-cli-tools",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "provides an easy interface for interacting with the OpenAI API",
   "bin": "build/index.js",
   "scripts": {

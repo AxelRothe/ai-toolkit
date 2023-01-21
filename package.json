@@ -4,6 +4,7 @@
   "description": "provides an easy interface for interacting with the OpenAI API",
   "bin": "build/index.js",
   "scripts": {
+    "webpack": "webpack --config webpack.dev.js --watch",
     "build": "webpack --config webpack.dev.js && ncc build src/index.ts -o build -e [mod]",
     "server": "npm run build && node build server",
     "start": "npm run build && node build"

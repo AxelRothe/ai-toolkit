@@ -170,6 +170,32 @@ export default function(program, core){
                 })
             })
 
+            app.delete('/api/chat/:id/last', (req, res) => {
+
+                    //check if token is valid
+                    if (!checkRequestAuthorization(req, res)) return;
+
+                    const {id} = req.params;
+                    //find chat
+                    const chat = chats.find((chat) => chat.id === id);
+                    if (!chat) {
+                        res.status(404).send("Chat not found");
+                        return;
+                    }
+                    if (!chat.owner === req.get("authorization").split(" ")[1]) {
+                        res.status(401).send("Unauthorized");
+                        return;
+                    }
+
+                    chat.thread.pop();
+                    res.send(chat);
+
+                    //save the chat as json to the server as a file for later use
+                    fs.writeFile(path.join(PATH_CACHE,"/chats/" , id + ".json"), JSON.stringify(chat), function (err) {
+                        if (err) throw err;
+                    })
+            })
+
             app.delete('/api/chat/:id', (req, res) => {
                 if (!checkRequestAuthorization(req, res)) return;
 

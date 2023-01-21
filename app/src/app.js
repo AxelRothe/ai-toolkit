@@ -1,4 +1,5 @@
 import axios from 'axios';
+import utils from './utility'
 
 export default {
     components: {
@@ -10,22 +11,46 @@ export default {
         <div class="error" v-if="error.length > 0"><icon i="cone-striped" /> {{error}}</div>
       </div>
       <div v-else class="app chat-bot">
+        <div class="chat-bot-mobile-menu">
+          <h2 class="chat-bot-mobile-menu-title">Your Chats</h2>
+          <div class="mobile-menu-chat-history">
+            <div class="mobile-menu-chat-history-item">
+              <a class="chat-bot-mobile-menu-button" :href="'/'"><icon size="2" i="plus-circle-dotted"/> New</a>
+            </div>
+            <div class="mobile-menu-chat-history-item" v-for="chat in chats">
+              <a class="chat-bot-mobile-menu-button" :href="'/chat/' + chat"><icon size="2" i="chat-fill"/> {{chat}}</a> <icon size="2" i="trash" @click="deleteChat(chat)"/>
+            </div>
+          </div>
+        </div>
+      
         <div class="chat-bot-information">
-          {{chatId ? "#" + chatId : "No Chat ID"}}
+          
+          <div class="chat-bot-mobile-menu-button">
+            <button @click="toggleMobileMenu"><icon i="list" /></button>
+          </div>
+          
+          <div class="chat-bot-chat-id">
+            <icon i="chat-square-text"></icon> {{chatId ? chatId : "No Chat ID"}}
+          </div>
         </div>
 
         <!-- ChatBot Body -->
 
         <div class="outer">
-          <div class="chat-bot-chat-history">
-            <h2>Your Chats</h2>
-            <div v-for="chat in chats">
-              <a :href="'/chat/' + chat"><icon i="chat-fill"/> {{chat}}</a> <icon i="trash" @click="deleteChat(chat)"/>
+          <div class="chat-bot-sidebar">
+            <h2><icon i="envelope"/> Your Chats</h2>
+            <div class="chat-bot-chat-history">
+              <div class="chat-bot-chat-history-item">
+                <a class="chat-bot-chat-history-button" :href="'/'"><icon i="plus-circle-dotted"/> New</a>
+              </div>
+              <div class="chat-bot-chat-history-item" v-for="chat in chats">
+                <a class="chat-bot-chat-history-button"  :href="'/chat/' + chat"><icon i="chat-fill"/> {{chat}}</a> <icon i="trash" @click="deleteChat(chat)"/>
+              </div>
             </div>
           </div>
           <div class="chat-bot-body-outer">
             <div class="chat-bot-body">
-              <div v-for="prompt in history" class="prompt" v-if="history.length > 0">
+              <div v-for="(prompt, index) in history" class="prompt" v-if="history.length > 0">
                 <div class="prompt-text">
                   <div class="prompt-text-info">
                     You
@@ -37,6 +62,7 @@ export default {
                 <div class="prompt-response">
                   <div class="prompt-text-info">
                     Bot
+                    <icon i="trash" v-if='index === history.length-1' @click="deleteLastItem(chatId)"/>
                   </div>
                   <div class="prompt-text-content">
                     {{prompt.response}}
@@ -47,21 +73,26 @@ export default {
                 Enter your first prompt to start a conversation.
               </div>
             </div>
+
+            
+            <!-- ChatBot Input -->
+            <div class="prompt-input">
+              <div class="prompt-input-text">
+                <textarea v-model="input.prompt" :disabled="!allowInput" @keyup.enter="send" placeholder="Type your prompt here..."></textarea>
+              </div>
+              <div class="prompt-input-action" @click="send($event)" v-if="allowInput">
+                <button :disabled="!allowInput"><icon size="2" i="send" /></button>
+              </div>
+              <div class="prompt-input-action thinking" v-else>
+                <icon size="2" i="diamond-half" />
+              </div>
+            </div>
+            
           </div>
+          
+          
         </div>
     
-        <!-- ChatBot Input -->
-        <div class="prompt-input">
-            <div class="prompt-input-text">
-                <textarea v-model="input.prompt" :disabled="!allowInput" @keyup.enter="send" placeholder="Type your prompt here..."></textarea>
-            </div>
-            <div class="prompt-input-action" @click="send" v-if="allowInput">
-                <button :disabled="!allowInput"><icon i="terminal" /> Prompt</button>
-            </div>
-              <div class="prompt-input-action" v-else>
-                Loading...
-              </div>
-        </div>
     </div>
     `,
     data: () => ({
@@ -87,7 +118,17 @@ export default {
         }
     },
     methods: {
-        async send() {
+        async send(event) {
+            //check if shift is pressed then ignore
+            if (event.shiftKey) return;
+
+            //remove last enter from prompt
+            this.input.prompt = this.input.prompt.replace(/\n$/, "");
+
+            if (this.input.prompt.length === 0 || !this.allowInput) {
+                utils.Snackbar("Please enter a prompt.");
+                return;
+            }
             this.allowInput = false;
             if (this.history.length === 0) {
                 this.chatId = await this.newChat(this.input.prompt);
@@ -99,7 +140,7 @@ export default {
                 this.allowInput = true;
             }
 
-            this.input = "";
+            this.input.prompt = "";
         },
         fetchChats() {
             return new Promise((resolve, reject) => {
@@ -111,6 +152,7 @@ export default {
                     this.chats = response.data;
                     resolve();
                 }).catch((error) => {
+                    utils.Snackbar("Error fetching chats.");
                     reject(error);
                 })
             })
@@ -152,7 +194,6 @@ export default {
                 this.testToken().then(r => {
                     this.token = this.input.token;
                     localStorage.setItem("token", this.token);
-                    console.log("Token Set", this.token);
                     this.getPageFromURL();
                 }).catch(e => {
                     this.setError("Invalid Token")
@@ -169,7 +210,7 @@ export default {
         scrollToBottom() {
             setTimeout(() => {
                 //scroll to bottom
-                const chatBotBody = this.$el.querySelector(".chat-bot-body");
+                const chatBotBody = this.$el.querySelector(".chat-bot-body-outer");
                 chatBotBody.scrollTop = chatBotBody.scrollHeight;
             },0);
         },
@@ -186,7 +227,10 @@ export default {
                     this.fetchChats();
                     this.appendToHistory(text, response.data.response);
                     resolve(response.data.id)
-                });
+                }).catch((error) => {
+                    reject(error);
+                    utils.Snackbar("Error creating new chat.");
+                })
             })
         },
         continueChat(id, text) {
@@ -201,7 +245,10 @@ export default {
                 }).then((response) => {
                     this.appendToHistory(text, response.data.response);
                     resolve(response.data)
-                });
+                }).catch((error) => {
+                    reject(error);
+                    utils.Snackbar("Error continuing chat.");
+                })
             })
         },
         getPreviousChat(id){
@@ -216,6 +263,9 @@ export default {
                         this.appendToHistory(item.prompt, item.response);
                     })
                     resolve(response.data)
+                }).catch(error=>{
+                    reject(error);
+                    utils.Snackbar("Error fetching chat.");
                 })
             })
         },
@@ -233,9 +283,28 @@ export default {
                     }
                     this.fetchChats();
                 }).catch(e => {
+                    utils.Snackbar("Error deleting chat.");
                     reject(e);
                 })
             })
+        },
+        deleteLastItem(id){
+            return new Promise((resolve, reject) => {
+                axios.delete("/api/chat/" + id + "/last", {
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token"),
+                    }
+                }).then(r => {
+                    //remove last item from history
+                    this.history.pop();
+                }).catch(e => {
+                    utils.Snackbar("Error deleting chat.");
+                    reject(e);
+                })
+            })
+        },
+        toggleMobileMenu(){
+            this.$el.querySelector(".chat-bot-mobile-menu").classList.toggle("active");
         }
     },
 };

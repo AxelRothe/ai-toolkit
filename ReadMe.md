@@ -57,6 +57,8 @@ SERVER_TOKENS="/path/to/cache/tokens.json"
 
 #### Endpoints
 
+Run a prompt with the following endpoint:
+
 ```
 POST /api/prompt
 {
@@ -66,6 +68,8 @@ POST /api/prompt
     "model": "text-davinci-003"
 }
 ```
+
+Create a new chat. Returns a JSON object with the prompt ID and the prompt text.
 
 ```
 POST /api/chat/new -> returns id
@@ -77,6 +81,8 @@ POST /api/chat/new -> returns id
 }
 ```
 
+Continue on the thread with the id returned from the previous request.
+
 ```
 POST /api/chat/:id
 {
@@ -87,12 +93,21 @@ POST /api/chat/:id
 }
 ```
 
+Get the chat and its history
+
 ```
 GET /api/chat/:id
 ```
 
+Removes the entire chat from the server
+
 ```
 DELETE /api/chat/:id
+```
+
+Removes the last record in the chat
+```
+DELETE /api/chat/:id/last
 ```
 
 ## Contributing

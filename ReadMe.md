@@ -6,8 +6,14 @@ This includes a web server for chatting and managing prompts, and a REST API for
 
 ## Installation
 
+You can install via npm for use in other tool chains or simply clone this repository if you want to use it as standalone.
+
 ```
-npm install openai-cli-tools
+npm install -g openai-cli-tools
+```
+
+```
+git clone https://github.com/AxelRothe/openai-cli-tools.git openai-cli-tools
 ```
 
 ## Build

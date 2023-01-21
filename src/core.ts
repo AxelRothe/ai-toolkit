@@ -5,7 +5,7 @@ import chatGPT from "chatgpt-io";
 import logbot from "logbotjs";
 
 
-export default async (model = 'text-davinci-003', prompt, temperature = 0.6, max_tokens = 200) => {
+export default async (model = 'text-davinci-003', prompt, temperature = 0.75, max_tokens = 1000) => {
     if (model === "chatgpt-unofficial") {
 
         if (!process.env.OPENAI_API_SESSION_TOKEN) {

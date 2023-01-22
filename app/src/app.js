@@ -210,7 +210,7 @@ export default {
         scrollToBottom() {
             setTimeout(() => {
                 //scroll to bottom
-                const chatBotBody = this.$el.querySelector(".chat-bot-body-outer");
+                const chatBotBody = this.$el.querySelector(".chat-bot-body");
                 chatBotBody.scrollTop = chatBotBody.scrollHeight;
             },0);
         },

@@ -38,13 +38,13 @@ export default {
 
         <div class="outer">
           <div class="chat-bot-sidebar">
-            <h2><icon i="envelope"/> Your Chats</h2>
+            <h2>Your Chats</h2>
             <div class="chat-bot-chat-history">
               <div class="chat-bot-chat-history-item">
-                <a class="chat-bot-chat-history-button" :href="'/'"><icon i="plus-circle-dotted"/> New</a>
+                <a class="chat-bot-chat-history-button" :href="'/'"><icon class="icon-button" i="plus-circle-dotted"/> New</a>
               </div>
               <div class="chat-bot-chat-history-item" v-for="chat in chats">
-                <a class="chat-bot-chat-history-button"  :href="'/chat/' + chat"><icon i="chat-fill"/> {{chat}}</a> <icon i="trash" @click="deleteChat(chat)"/>
+                <a class="chat-bot-chat-history-button"  :href="'/chat/' + chat"><icon i="chat-fill"/> {{chat}}</a> <icon class="icon-button" i="trash" @click="deleteChat(chat)"/>
               </div>
             </div>
           </div>
@@ -56,15 +56,17 @@ export default {
                     You
                   </div>
                   <div class="prompt-text-content">
-                    {{prompt.prompt}}
+                    <icon class="icon-button" i="trash" v-if='index === history.length-1' @click="deleteLastItem(chatId)"/>
+                    <div>{{prompt.prompt}}</div>
                   </div>
                 </div>
                 <div class="prompt-response">
                   <div class="prompt-text-info">
                     Bot
-                    <icon i="trash" v-if='index === history.length-1' @click="deleteLastItem(chatId)"/>
+                    <icon class="icon-button retry" size="2" i="arrow-clockwise" v-if='index === history.length-1'  @click="retryLastItem(chatId)"/>
                   </div>
                   <div class="prompt-text-content">
+                    <icon class="icon-button paperclip" i="paperclip" @click="copyToClipboard(prompt.response)"></icon>
                     {{prompt.response}}
                   </div>
                 </div>
@@ -87,9 +89,7 @@ export default {
                 <icon size="2" i="diamond-half" />
               </div>
             </div>
-            
-          </div>
-          
+          </div>       
           
         </div>
     
@@ -105,7 +105,10 @@ export default {
             prompt: "",
         },
         error: "",
-        chats : []
+        chats : [],
+        settings: {
+            typeSpeed: 50,
+        }
     }),
     async mounted() {
         if (!this.token && localStorage.getItem("token")){
@@ -162,17 +165,46 @@ export default {
             const chatId = url.split("/")[2];
             if (chatId) {
                 this.chatId = chatId;
-                 this.getPreviousChat(this.chatId).then(r => {
+                this.getPreviousChat(this.chatId).then(r => {
                     console.log("Got Chat.")
                 })
             }
         },
-        appendToHistory(prompt, response) {
-            this.history.push({
-                prompt,
-                response,
-            });
-            this.scrollToBottom()
+        appendToHistory(prompt, response, animate = false, index = -1) {
+
+            if (!animate) {
+
+                if (index === -1) {
+                    this.history.push({
+                        prompt,
+                        response
+                    });
+                } else {
+                    this.history[index] = {
+                        prompt,
+                        response
+                    }
+                }
+                this.scrollToBottom();
+                return;
+            }
+
+            if (index === -1) {
+                index = this.history.push({
+                    prompt,
+                    response: "",
+                }) - 1;
+            }
+            //for each word in response add a delay
+            const words = response.split(" ");
+            let delay = 0;
+            for (let i = 0; i < words.length; i++) {
+                delay += this.settings.typeSpeed;
+                setTimeout(() => {
+                    this.history[index].response += words[i] + " ";
+                    this.scrollToBottom();
+                }, delay);
+            }
         },
         testToken(token = this.input.token){
             return new Promise((resolve, reject) => {
@@ -225,7 +257,7 @@ export default {
                     }
                 }).then((response) => {
                     this.fetchChats();
-                    this.appendToHistory(text, response.data.response);
+                    this.appendToHistory(text, response.data.response, true);
                     resolve(response.data.id)
                 }).catch((error) => {
                     reject(error);
@@ -233,9 +265,13 @@ export default {
                 })
             })
         },
-        continueChat(id, text) {
+        continueChat(chatId, text) {
             return new Promise((resolve, reject) => {
-                axios.post("/api/chat/"+ id, {
+                const index = this.history.push({
+                    prompt: text,
+                    response: "Thinking...",
+                }) - 1
+                axios.post("/api/chat/"+ chatId, {
                     prompt: text,
                 }, {
                     headers: {
@@ -243,7 +279,8 @@ export default {
                         "Authorization": "Bearer " + localStorage.getItem("token"),
                     }
                 }).then((response) => {
-                    this.appendToHistory(text, response.data.response);
+                    this.history[index].response = '';
+                    this.appendToHistory(text, response.data.response, true, index);
                     resolve(response.data)
                 }).catch((error) => {
                     reject(error);
@@ -251,9 +288,9 @@ export default {
                 })
             })
         },
-        getPreviousChat(id){
+        getPreviousChat(chatId){
             return new Promise((resolve, reject) =>{
-                axios.get("/api/chat/"+id, {
+                axios.get("/api/chat/"+chatId, {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": "Bearer " + localStorage.getItem("token"),
@@ -269,14 +306,14 @@ export default {
                 })
             })
         },
-        deleteChat(id) {
+        deleteChat(chatId) {
             return new Promise((resolve, reject) => {
-                axios.delete("/api/chat/" + id, {
+                axios.delete("/api/chat/" + chatId, {
                     headers: {
                         "Authorization": "Bearer " + localStorage.getItem("token"),
                     }
                 }).then(r => {
-                    if (this.chatId === id) {
+                    if (this.chatId === chatId) {
                         this.history = [];
                         this.chatId = null;
                         window.history.pushState({}, "", "/");
@@ -288,23 +325,45 @@ export default {
                 })
             })
         },
-        deleteLastItem(id){
-            return new Promise((resolve, reject) => {
-                axios.delete("/api/chat/" + id + "/last", {
+        async deleteLastItem(chatId) {
+            try {
+                await axios.delete("/api/chat/" + chatId + "/last", {
                     headers: {
                         "Authorization": "Bearer " + localStorage.getItem("token"),
                     }
-                }).then(r => {
-                    //remove last item from history
-                    this.history.pop();
-                }).catch(e => {
-                    utils.Snackbar("Error deleting chat.");
-                    reject(e);
-                })
-            })
+                });
+                //remove last item from history
+                this.history.pop();
+            } catch (e) {
+                utils.Snackbar("Error deleting chat.");
+                throw e;
+            }
+        },
+        async retryLastItem(chatId){
+            try {
+                this.allowInput = false;
+                const lastItem = this.history[this.history.length - 1];
+                await this.deleteLastItem(chatId);
+                await this.continueChat(chatId, lastItem.prompt, true, this.history.length - 1);
+                this.allowInput = true;
+            } catch (e) {
+                console.log(e);
+                utils.Snackbar("Error retrying prompt.");
+            }
         },
         toggleMobileMenu(){
             this.$el.querySelector(".chat-bot-mobile-menu").classList.toggle("active");
+        },
+        /**
+         * Copies the text to the clipboard
+         * @param text
+         */
+        copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                utils.Snackbar("Copied to clipboard.");
+            }, () => {
+                utils.Snackbar("Error copying to clipboard.");
+            });
         }
     },
 };

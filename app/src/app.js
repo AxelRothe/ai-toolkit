@@ -8,7 +8,7 @@ export default {
       <div class="no-token" v-if="!token">
         <h1><icon i="key-fill"/> No Token Detected</h1>
         <input v-model="input.token" placeholder="Your Token"/><button @click="setToken"><icon i="unlock" /> Set Token</button>
-        <div class="error" v-if="error.length > 0"><icon i="cone-striped" /> {{error}}</div>
+        <div class="error" v-if="error && error.length > 0"><icon i="cone-striped" /> {{error}}</div>
       </div>
       <div v-else class="app chat-bot">
         <div class="chat-bot-mobile-menu">
@@ -30,7 +30,7 @@ export default {
           </div>
           
           <div class="chat-bot-chat-id">
-            <icon i="chat-square-text"></icon> {{chatId ? chatId : "No Chat ID"}}
+            <icon i="chat-fill"></icon> {{chatId ? chatId : "No Chat ID"}}
           </div>
         </div>
 
@@ -43,21 +43,22 @@ export default {
               <div class="chat-bot-chat-history-item">
                 <a class="chat-bot-chat-history-button" :href="'/'"><icon class="icon-button" i="plus-circle-dotted"/> New</a>
               </div>
-              <div class="chat-bot-chat-history-item" v-for="chat in chats">
-                <a class="chat-bot-chat-history-button"  :href="'/chat/' + chat"><icon i="chat-fill"/> {{chat}}</a> <icon class="icon-button" i="trash" @click="deleteChat(chat)"/>
+              <div class="chat-bot-chat-history-item" v-for="(chat, index) in chats">
+                <a class="chat-bot-chat-history-button"  :href="'/chat/' + chat"><icon :i="chat === chatId ? 'chat-fill' : 'chat'"/> {{chat}}</a> <icon class="icon-button" i="trash" @click="deleteChat(chat)"/>
               </div>
             </div>
           </div>
           <div class="chat-bot-body-outer">
             <div class="chat-bot-body">
-              <div v-for="(prompt, index) in history" class="prompt" v-if="history.length > 0">
+              <div v-for="(prompt, index) in history" :class="['prompt']" v-if="history.length > 0">
                 <div class="prompt-text">
                   <div class="prompt-text-info">
                     You
                   </div>
                   <div class="prompt-text-content">
-                    <icon class="icon-button" i="trash" v-if='index === history.length-1' @click="deleteLastItem(chatId)"/>
-                    <div>{{prompt.prompt}}</div>
+                    <icon class="icon-button prompt-remove-btn" i="trash" size="2" v-if='index === history.length-1' @click="deleteLastItem(chatId)"/>
+                    <textarea id="textarea-prompt" ref="textarea-prompt" v-if='index === history.length-1' v-model="prompt.prompt" :rows="textareas['textarea-prompt'].rows" @change="editLastItem(chatId, prompt.prompt)" @keydown.tab.prevent="writeTab($event, prompt,'prompt')"/>
+                    <div v-else>{{prompt.prompt}}</div>
                   </div>
                 </div>
                 <div class="prompt-response">
@@ -66,8 +67,9 @@ export default {
                     <icon class="icon-button retry" size="2" i="arrow-clockwise" v-if='index === history.length-1'  @click="retryLastItem(chatId)"/>
                   </div>
                   <div class="prompt-text-content">
-                    <icon class="icon-button paperclip" i="paperclip" @click="copyToClipboard(prompt.response)"></icon>
-                    {{prompt.response}}
+                    <icon class="icon-button paperclip" size=2 i="paperclip" @click="copyToClipboard(prompt.response)"></icon>
+                    <textarea id="textarea-response" ref="textarea-response" v-if='index === history.length-1' v-model="prompt.response" :rows="textareas['textarea-response'].rows" @keydown="handleKeyDown($event, prompt,'response')" @keydown.tab.prevent="writeTab($event, prompt,'response')" @change="editLastItem(chatId, undefined, prompt.response)"/>
+                    <div v-else>{{prompt.response}}</div>
                   </div>
                 </div>
               </div>
@@ -108,6 +110,14 @@ export default {
         chats : [],
         settings: {
             typeSpeed: 50,
+        },
+        textareas: {
+            "textarea-prompt": {
+                rows: 1,
+            },
+            "textarea-response": {
+                rows: 1,
+            }
         }
     }),
     async mounted() {
@@ -115,12 +125,38 @@ export default {
             this.token = localStorage.getItem("token");
 
             if (await this.testToken(this.token)){
-                this.getPageFromURL();
-                this.fetchChats();
+                await this.getPageFromURL();
+                await this.fetchChats();
             }
         }
     },
     methods: {
+        handleKeyDown(e, prompt, type) {
+            //check if backspace
+            if (e.keyCode === 8) {
+                this.updateTextAreas();
+            }
+            //if enter and shift
+            if (e.keyCode === 13 && e.shiftKey) {
+                this.updateTextAreas();
+            }
+        },
+        async updateTextAreas(nextTick = true){
+            if (nextTick){
+                await this.$nextTick();
+                this.textareas["textarea-prompt"].rows = 1;
+                this.textareas["textarea-response"].rows = 1;
+                await this.$nextTick();
+                this.scrollToBottom();
+            }
+            //get linheight from css
+            const lineHeight = 20;
+
+            const ta = this.$el.querySelector("#textarea-prompt");
+            this.textareas["textarea-prompt"].rows = ta.scrollHeight / lineHeight;
+            const ta2 = this.$el.querySelector("#textarea-response");
+            this.textareas["textarea-response"].rows = ta2.scrollHeight / lineHeight;
+        },
         async send(event) {
             //check if shift is pressed then ignore
             if (event.shiftKey) return;
@@ -153,6 +189,7 @@ export default {
                     }
                 }).then((response) => {
                     this.chats = response.data;
+                    this.updateTextAreas();
                     resolve();
                 }).catch((error) => {
                     utils.Snackbar("Error fetching chats.");
@@ -167,6 +204,8 @@ export default {
                 this.chatId = chatId;
                 this.getPreviousChat(this.chatId).then(r => {
                     console.log("Got Chat.")
+                }).catch(e => {
+                    console.log("Error getting chat.")
                 })
             }
         },
@@ -186,6 +225,7 @@ export default {
                     }
                 }
                 this.scrollToBottom();
+                this.updateTextAreas();
                 return;
             }
 
@@ -195,13 +235,14 @@ export default {
                     response: "",
                 }) - 1;
             }
-            //for each word in response add a delay
+            //for each word or line break in response add a delay
             const words = response.split(" ");
             let delay = 0;
             for (let i = 0; i < words.length; i++) {
                 delay += this.settings.typeSpeed;
                 setTimeout(() => {
                     this.history[index].response += words[i] + " ";
+                    this.updateTextAreas();
                     this.scrollToBottom();
                 }, delay);
             }
@@ -221,17 +262,16 @@ export default {
                 })
             })
         },
-        setToken(){
-            return new Promise((resolve, reject) => {
-                this.testToken().then(r => {
-                    this.token = this.input.token;
-                    localStorage.setItem("token", this.token);
-                    this.getPageFromURL();
-                }).catch(e => {
-                    this.setError("Invalid Token")
-                    reject();
-                })
-            })
+        async setToken(){
+            try {
+                await this.testToken();
+                this.token = this.input.token;
+                localStorage.setItem("token", this.token);
+                await this.getPageFromURL();
+                await this.fetchChats();
+            } catch (e) {
+                this.setError("Invalid Token");
+            }
         },
         setError(error){
             this.error = error;
@@ -258,6 +298,7 @@ export default {
                 }).then((response) => {
                     this.fetchChats();
                     this.appendToHistory(text, response.data.response, true);
+                    this.updateTextAreas();
                     resolve(response.data.id)
                 }).catch((error) => {
                     reject(error);
@@ -281,6 +322,7 @@ export default {
                 }).then((response) => {
                     this.history[index].response = '';
                     this.appendToHistory(text, response.data.response, true, index);
+
                     resolve(response.data)
                 }).catch((error) => {
                     reject(error);
@@ -351,6 +393,34 @@ export default {
                 utils.Snackbar("Error retrying prompt.");
             }
         },
+        async editLastItem(chatId, prompt, response){
+            try {
+                this.allowInput = false;
+
+                const r = await axios.put("/api/chat/" + chatId + "/last", {
+                    prompt,
+                    response
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: "Bearer " + localStorage.getItem("token"),
+                    }
+                })
+                await this.updateTextAreas(true);
+                if (prompt && !response){
+                    utils.Snackbar("Saved changed prompt. Regenerate response to see changes.");
+                } else {
+                    utils.Snackbar("Saved changes to response. Changes will be visible on next prompt.");
+                }
+
+                this.allowInput = true;
+            } catch (e) {
+                this.allowInput = true;
+                console.log(e);
+                utils.Snackbar("Error editing prompt.");
+            }
+        },
         toggleMobileMenu(){
             this.$el.querySelector(".chat-bot-mobile-menu").classList.toggle("active");
         },
@@ -364,6 +434,31 @@ export default {
             }, () => {
                 utils.Snackbar("Error copying to clipboard.");
             });
+        },
+        writeTab($event, variable, parameter){
+            const textarea = this.$el.querySelector('#textarea-'+parameter);
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const value = variable[parameter];
+
+            //if shift key is pressed, remove the tab
+            if ($event.shiftKey) {
+                textarea.value = value.substring(0, start - 4) + value.substring(end);
+
+                this.$nextTick().then(r =>{
+                    textarea.selectionStart = textarea.selectionEnd = start - 4;
+                    textarea.focus();
+                });
+
+            } else {
+                variable[parameter] = value.substring(0, start) + "\t" + value.substring(end);
+
+                this.$nextTick().then(r =>{
+                    textarea.selectionStart = textarea.selectionEnd = start + 1;
+                    textarea.focus();
+                });
+            }
+
         }
     },
 };

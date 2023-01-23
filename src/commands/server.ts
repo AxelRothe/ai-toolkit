@@ -12,6 +12,28 @@ if (!tokenPath) throw new Error("No SERVER_TOKENS found in .env file")
 
 const tokens = JSON.parse(fs.readFileSync(tokenPath, "utf-8"));
 
+const logCall = (req, status = 100) => {
+    logbot.log(status, "[" + req.method + "] " + req.originalUrl + " REQUESTEE: " + req.ip);
+}
+
+const respond = (req,res)=>{
+    return {
+        status: (status)=>{
+            res.status(status);
+            logCall(req, status);
+            return {
+                send: (data) => {
+                    res.send(data);
+                },
+                sendFile: (file) => {
+                    res.sendFile(file);
+                }
+            }
+        }
+    }
+}
+
+
 /**
  * Checks if the token is valid
  * @param {express.Request} req the request
@@ -22,15 +44,16 @@ const tokens = JSON.parse(fs.readFileSync(tokenPath, "utf-8"));
 const checkRequestAuthorization = (req, res, role = "") => {
     const auth = req.get("authorization");
     if (!auth || !auth.startsWith("Bearer ")) {
-        res.status(401).send({ error: `Invalid Authorization Format or Token. Should be: Bearer <token>` });
+        respond(req,res).status(401).send({ error: `Invalid Authorization Format or Token. Should be: Bearer <token>` });
         return false;
     }
 
     const token = auth.split(" ")[1];
     if (!tokens.includes(token)) {
-        res.status(401).send({ error: `Invalid Token` });
+        respond(req,res).status(401).send({ error: `Invalid Token` });
         return false;
     }
+
     return true;
 };
 
@@ -68,7 +91,8 @@ export default function(program, core){
             logbot.log(200, "📂 Loaded " + chats.length + " chats from cache");
 
             app.get('/', (req, res) => {
-                res.sendFile(path.join(__dirname, ".." , "/httpdocs/index.html"));
+                logCall(req);
+                respond(req,res).status(200).sendFile(path.join(__dirname, ".." , "/httpdocs/index.html"));
             })
 
             app.post('/api/chat/new', (req, res) => {
@@ -81,7 +105,7 @@ export default function(program, core){
                 const promptText = "Request:\n" + prompt + "\nResponse:\n";
                 core(model, promptText, temperature, max_tokens).then((response) => {
 
-                    res.send({
+                    respond(req,res).status(200).send({
                         id,
                         prompt: promptText,
                         response
@@ -101,7 +125,8 @@ export default function(program, core){
                         if (err) throw err;
                     });
                 }).catch((err) => {
-                    res.status(500).send({error: err});
+                    logCall(req, 500);
+                    respond(req,res).status(500).send({error: err});
                 })
             })
 
@@ -114,13 +139,13 @@ export default function(program, core){
                 const chat = chats.find((chat) => chat.id === id);
                 if (chat) {
                     if (!chat.owner === req.get("authorization").split(" ")[1]) {
-                        res.status(401).send("Unauthorized");
+                        respond(req,res).status(401).send("Unauthorized");
                         return;
                     }
 
-                    res.send(chat);
+                    respond(req,res).status(200).send(chat);
                 } else {
-                    res.send({
+                    respond(req,res).status(404).send({
                         error: "Chat not found"
                     });
                 }
@@ -136,11 +161,11 @@ export default function(program, core){
                 //find chat
                 const chat = chats.find((chat) => chat.id === id);
                 if (!chat) {
-                    res.status(404).send("Chat not found");
+                    respond(req,res).status(404).send("Chat not found");
                     return;
                 }
                 if (!chat.owner === req.get("authorization").split(" ")[1]) {
-                    res.status(401).send("Unauthorized");
+                    respond(req,res).status(401).send("Unauthorized");
                     return;
                 }
 
@@ -151,7 +176,7 @@ export default function(program, core){
                 })
                 const promptText = history + "Request:\n" + prompt + "\nResponse:\n";
                 core(model, promptText, temperature, max_tokens).then((response) => {
-                    res.send({
+                    respond(req,res).status(200).send({
                         id,
                         prompt: promptText,
                         response
@@ -166,7 +191,7 @@ export default function(program, core){
                         if (err) throw err;
                     })
                 }).catch((err) => {
-                    res.status(500).send({error: err});
+                    respond(req,res).status(500).send({error: err});
                 })
             })
 
@@ -179,16 +204,16 @@ export default function(program, core){
                     //find chat
                     const chat = chats.find((chat) => chat.id === id);
                     if (!chat) {
-                        res.status(404).send("Chat not found");
+                        respond(req,res).status(404).send("Chat not found");
                         return;
                     }
                     if (!chat.owner === req.get("authorization").split(" ")[1]) {
-                        res.status(401).send("Unauthorized");
+                        respond(req,res).status(401).send("Unauthorized");
                         return;
                     }
 
                     chat.thread.pop();
-                    res.send(chat);
+                    respond(req,res).status(200).send(chat);
 
                     //save the chat as json to the server as a file for later use
                     fs.writeFile(path.join(PATH_CACHE,"/chats/" , id + ".json"), JSON.stringify(chat), function (err) {
@@ -196,24 +221,62 @@ export default function(program, core){
                     })
             })
 
+            /**
+             * Allows changes to the chat history
+             */
+            app.put('/api/chat/:id/last', (req, res) => {
+
+                    //check if token is valid
+                    if (!checkRequestAuthorization(req, res)) return;
+
+                    const {id} = req.params;
+                    const {prompt, response} = req.body;
+                    //if both prompt and response are empty, return error
+                    if (!prompt && !response) {
+                        respond(req,res).status(400).send("Bad Request");
+                        return;
+                    }
+
+                    //find chat
+                    const chat = chats.find((chat) => chat.id === id);
+
+                    if (!chat) {
+                        respond(req,res).status(404).send("Chat not found");
+                        return;
+                    }
+                    if (!chat.owner === req.get("authorization").split(" ")[1]) {
+                        respond(req,res).status(401).send("Unauthorized");
+                        return;
+                    }
+
+                    chat.thread[chat.thread.length - 1].prompt = prompt || chat.thread[chat.thread.length - 1].prompt;
+                    chat.thread[chat.thread.length - 1].response = response || chat.thread[chat.thread.length - 1].response;
+
+                    //save the chat as json to the server as a file for later use
+                    fs.writeFile(path.join(PATH_CACHE,"/chats/" , id + ".json"), JSON.stringify(chat), function (err) {
+                        if (err) throw err;
+                        respond(req,res).status(200).send(chat);
+                    })
+            });
+
             app.delete('/api/chat/:id', (req, res) => {
                 if (!checkRequestAuthorization(req, res)) return;
 
                 const id = req.params.id;
                 const chat = chats.find((chat) => chat.id === id);
                 if (!chat) {
-                    res.status(404).send("Chat not found");
+                    respond(req,res).status(404).send("Chat not found");
                     return;
                 }
                 if (!chat.owner === req.get("authorization").split(" ")[1]) {
-                    res.status(401).send("Unauthorized");
+                    respond(req,res).status(401).send("Unauthorized");
                     return;
                 }
 
                 chats.splice(chats.indexOf(chat), 1);
                 fs.unlink(path.join(PATH_CACHE, "/chats/", id + ".json"), function (err) {
                     if (err) throw err;
-                    res.send("Chat deleted");
+                    respond(req,res).status(200).send("Chat deleted");
                 })
             })
 
@@ -222,12 +285,12 @@ export default function(program, core){
 
                 const {model, prompt, temperature, max_tokens} = req.body;
                 core(model, prompt, temperature, max_tokens).then((response) => {
-                    res.send({
+                    respond(req,res).status(200).send({
                         prompt,
                         response
                     });
                 }).catch((err) => {
-                    res.status(500).send({error: err});
+                    respond(req,res).status(500).send({error: err});
                 })
             })
 
@@ -236,7 +299,7 @@ export default function(program, core){
              */
             app.get('/api/auth', (req, res) => {
                 if (!checkRequestAuthorization(req, res)) return;
-                res.send("Authorized");
+                respond(req,res).status(200).send("Authorized");
             })
 
             app.get('/api/chats', (req, res) => {
@@ -246,11 +309,12 @@ export default function(program, core){
                 const owner = req.get("authorization").split(" ")[1];
                 const filteredChats = chats.filter((chat) => chat.owner === owner);
 
-                res.status(200).send(filteredChats.map((chat) =>chat.id))
+                respond(req,res).status(200).send(filteredChats.map((chat) =>chat.id))
             })
 
             app.get('*', (req, res) => {
-                res.sendFile(path.join(__dirname, ".." , "/httpdocs/index.html"));
+                console.log("Wildcard request");
+                respond(req,res).status(200).sendFile(path.join(__dirname, ".." , "/httpdocs/index.html"));
             })
 
             app.listen(port, () => {

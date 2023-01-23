@@ -2,6 +2,8 @@
 
 @color-a: #fed800;
 @color-b: #1c2226;
+@color-c: #117bc2;
+@color-d: #c28a11;
 @color-1: lighten(@color-b, 10%);
 @color-2: lighten(@color-1, 10%);
 @color-3: lighten(@color-2, 20%);
@@ -317,28 +319,54 @@ input {
 
   .prompt {
 
-
-
     &:not(:first-child){
         margin-top: 1em;
     }
 
-    .prompt-text {
+    textarea {
+      background: none;
+      color: inherit;
+      border: none;
+      resize: none;
+      width: 100%;
+      height: 100%;
+      font-family: inherit;
+      display: flex;
+      &:focus {
+        background: none;
+        outline: none;
+      }
+    }
 
+    .prompt-text {
       text-align: right;
       .prompt-text-info {
         color: @color-3;
-        font-size: 0.75em;
         font-weight: 500;
         padding: 0.5em 0;
-
       }
       .prompt-text-content {
-        color: #f1f1f1;
-        & > div {
 
-          font-size: 0.8em;
+        & > div {
+          font-size: 1em;
         }
+        position: relative;
+
+        .prompt-remove-btn {
+          color: @color-b;
+          position: absolute;
+          right: 0.5em;
+          bottom: 0.5em;
+        }
+
+        textarea {
+          font-size: 1em;
+          width: 100%;
+          height: 100%;
+          line-height: 20px;
+        }
+
+        color: #f1f1f1;
         background: darken(@color-b, 2%, true);
         border-radius: 1em;
         box-shadow: 0em 1em 1em darken(@color-b, 3%, true);
@@ -353,9 +381,9 @@ input {
     }
     .prompt-response {
       margin-top: 1em;
+
       .prompt-text-info {
         color: @color-3;
-        font-size: 0.75em;
         font-weight: 500;
         padding: 0.5em 0;
         display: flex;
@@ -386,9 +414,8 @@ input {
 
       }
       .prompt-text-content {
-        transition: all 0.2s ease-in-out;
+        transition: all 1s ease-in-out;
         color: #f1f1f1;
-        font-size: 0.8em;
         background: darken(@color-b, 2%, true);
         border-radius: 1em;
         box-shadow: 0em 1em 1em darken(@color-b, 3%, true);
@@ -396,10 +423,26 @@ input {
         white-space: pre-wrap;
         padding: 1em;
         position: relative;
+
+
+        & > div {
+          font-size: 1em;
+        }
+
+        textarea {
+          font-size: 1em;
+          width: 100%;
+          height: 100%;
+          line-height: 20px;
+        }
+
+
         .paperclip {
           position: absolute;
+          z-index:99;
           right: 0.5em;
           bottom: 0.5em;
+          color: @color-b;
         }
       }
 
@@ -445,7 +488,7 @@ input {
       display: flex;
       justify-content: center;
       flex-direction: column;
-      transition: all 0.2s ease-in-out;
+      transition: all 1s ease-in-out;
       background: @color-2;
       box-shadow: inset 0em 0em 1em rgba(0,0,0,0.2);
 
@@ -502,6 +545,19 @@ input {
           }
           animation: spin 1s linear infinite;
         }
+      }
+    }
+  }
+
+  .prompt:last-child {
+    .prompt-text {
+      .prompt-text-content {
+        background: @color-d;
+      }
+    }
+    .prompt-response {
+      .prompt-text-content {
+        background: @color-c;
       }
     }
   }

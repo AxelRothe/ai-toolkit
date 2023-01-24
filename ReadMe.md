@@ -67,6 +67,9 @@ SERVER_TOKENS="/path/to/cache/tokens.json"
 
 ```
 GET /api/auth
+headers {
+    Authorization: "Bearer <YOUR_TOKEN>",
+}
 ```
 
 You will need to add a Authorization Token via the Bearer in order to connect to the REST API, use `/api/auth` with GET to check if your token is valid. Tokens are set in an array in your SERVER_TOKENS file.

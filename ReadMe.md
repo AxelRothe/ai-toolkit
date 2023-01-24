@@ -148,11 +148,9 @@ Instructions for how others can contribute to your project, such as:
 
 ## License
 
-MIT License
+GPL-3.0 License
 
 Copyright (c) 2023 Axel Rothe
-
-Permission is granted to use, copy, modify, merge, publish, distribute, and/or sell copies of the Software, provided all copyright and permission notices are included.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.
 

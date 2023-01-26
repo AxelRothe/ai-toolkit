@@ -1,19 +1,21 @@
-# openAI cli tools - (Interactive) CLI & REST
+# ai-tools - (Interactive) CLI, REST, and GUI tools for AI
 
-A CLI App for OpenAI Models is a command line interface app that allows users to easily interface with OpenAI models and services. It provides an intuitive chatbot UI, a suite of tools for use in the terminal, and a REST API. Users must provide their own API session and API keys to use the app. It is designed to make it easy to explore and use OpenAI's models and services, and is suitable for developers, data scientists, and anyone who wishes to use OpenAI's services.
+This repository provides a comprehensive suite of tools for AI development, allowing for accelerated development of AI applications and unified tracking of token usage and billing information.
+## Supported Tools
 
-This includes a web server for chatting and managing prompts, and a REST API for interacting with the app.
+- OpenAI Text Models
+- DeepVA (All Visual Mining Modules)
 
 ## Installation
 
-You can install via npm for use in other tool chains or simply clone this repository if you want to use it as standalone.
+Install the repository via npm if you want to incorporate it into existing tool chains, or clone the repository if you plan to use it as a standalone application.
 
 ```
-npm install -g openai-cli-tools
+npm install -g ai-tools
 ```
 
 ```
-git clone https://github.com/AxelRothe/openai-cli-tools.git openai-cli-tools
+git clone https://github.com/AxelRothe/ai-tools.git ai-tools
 ```
 
 ## Build

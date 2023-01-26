@@ -3,7 +3,7 @@ import {prompt} from "enquirer";
 import logbot from "logbotjs";
 import dotenv from 'dotenv'
 dotenv.config()
-export default function(program, run) {
+export default function(program, core) {
 
     program.command('chat')
         .alias('c')
@@ -91,9 +91,12 @@ export default function(program, run) {
                 //run
                 try {
                     logbot.addSpinner("openai", "⌚️");
-                    const result = await run(options.model, promptContent, options.temperature, options.max_tokens)
+                    const result = await core.run('gpt-3', {
+                        prompt: promptContent,
+                        ...options
+                    })
                     logbot.endSpinner("openai", "success", "⌚️");
-                    logbot.log(200, "💬 Bot: " + result);
+                    logbot.log(200, "💬 Bot: " + result.choices[0].text);
 
                     //add to history
                     history.push({

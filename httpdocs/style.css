@@ -1,0 +1,531 @@
+@import "snackbar.css";
+@import "/assets/fonts/fonts.css";
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: 'Overpass', sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #f1f1f1;
+  font-weight: 300;
+}
+pre {
+  font-family: 'Overpass', sans-serif;
+}
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+button > .icon:first-child {
+  margin-right: 0.5em;
+}
+.icon {
+  color: inherit;
+}
+.icon.icon-button {
+  color: #b0bcc4;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.icon.icon-button:hover {
+  color: #fed800 !important;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+  display: flex;
+  align-items: center;
+  margin: 0 0 0.5em 0;
+  color: #758b99;
+}
+h1 > .icon:first-child,
+h2 > .icon:first-child,
+h3 > .icon:first-child,
+h4 > .icon:first-child,
+h5 > .icon:first-child {
+  margin-right: 0.25em;
+}
+/* WEBKIT */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #323c43;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid #475761;
+}
+::-webkit-scrollbar-thumb {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+  background-color: #475761;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #475761;
+}
+body {
+  background: #1c2226;
+}
+button {
+  background: none;
+  padding: 0.5em;
+  color: #f1f1f1;
+  font-size: 16px;
+  font-weight: 300;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+button:hover {
+  background: #475761;
+}
+input {
+  background: none;
+  padding: 0.5em;
+  color: #f1f1f1;
+  font-size: 16px;
+  font-weight: 300;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+input:focus {
+  background: #475761;
+}
+.no-token {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+.no-token > * {
+  margin: 0.5em;
+}
+.chat-bot {
+  margin: 0 auto;
+  max-width: 1200px;
+  display: grid;
+  height: 100vh;
+  overflow-y: hidden;
+  grid-template-rows: auto 1fr;
+}
+.chat-bot .chat-bot-mobile-menu {
+  display: none;
+}
+.chat-bot .chat-bot-mobile-menu.active {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #1c2226;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+.chat-bot .chat-bot-mobile-menu.active .mobile-menu-chat-history {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  padding: 2em 4em;
+  width: 100%;
+  height: 100%;
+}
+.chat-bot .chat-bot-mobile-menu.active .chat-bot-mobile-menu-title {
+  font-size: 1.5em;
+  font-weight: 300;
+  color: #758b99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-top: 2em;
+}
+.chat-bot .chat-bot-mobile-menu.active .mobile-menu-chat-history-item {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-bot .chat-bot-mobile-menu.active .mobile-menu-chat-history-item .icon {
+  color: #b0bcc4;
+}
+.chat-bot .chat-bot-mobile-menu.active .mobile-menu-chat-history-item .chat-bot-mobile-menu-button {
+  text-decoration: none;
+  color: #b0bcc4;
+  font-size: 3em;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+.chat-bot .chat-bot-mobile-menu.active .mobile-menu-chat-history-item:hover {
+  color: #fed800;
+}
+.chat-bot .chat-bot-information {
+  padding: 0.5em;
+  text-align: center;
+  position: relative;
+  height: 100%;
+}
+.chat-bot .chat-bot-information .chat-bot-chat-id {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em 1em;
+  border: 1px solid #323c43;
+  background: #1a1f23;
+}
+.chat-bot .chat-bot-information .chat-bot-chat-id .chat-bot-name {
+  color: #fed800;
+  font-size: 1.5em;
+}
+.chat-bot .chat-bot-information .chat-bot-chat-id .chat-bot-name .icon {
+  margin-right: 0.5em;
+}
+.chat-bot .chat-bot-information .chat-bot-chat-id .chat-bot-usage {
+  font-size: 0.5em;
+  font-weight: 300;
+  color: #758b99;
+  font-family: "Overpass", monospace;
+  margin-left: 0.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.chat-bot .chat-bot-information .chat-bot-chat-id .chat-bot-usage .chat-bot-usage-remaining {
+  color: #b0bcc4;
+  font-size: 1.5em;
+}
+.chat-bot .chat-bot-information .chat-bot-mobile-menu-button {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  height: 100%;
+  right: 0;
+  top: 0;
+  padding: 0.5em;
+  cursor: pointer;
+  z-index: 200;
+}
+@media (min-width: 768px) {
+  .chat-bot .chat-bot-information .chat-bot-mobile-menu-button {
+    display: none;
+  }
+}
+.chat-bot .chat-bot-information .chat-bot-mobile-menu-button .icon {
+  margin: 0;
+}
+.chat-bot .chat-bot-information .chat-bot-mobile-menu-button .mobile-menu-chat-history {
+  display: flex;
+  flex-direction: row;
+}
+.chat-bot .outer {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+}
+@media (max-width: 768px) {
+  .chat-bot .outer {
+    grid-template-columns: 1fr;
+  }
+}
+.chat-bot .chat-bot-body-outer {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  position: relative;
+  grid-template-rows: calc(100vh - 11em) 100px;
+}
+.chat-bot .chat-bot-body-outer .chat-bot-body {
+  height: 100%;
+  padding: 1em;
+  overflow-y: scroll;
+}
+.chat-bot .chat-bot-sidebar {
+  padding: 1em;
+}
+@media (max-width: 768px) {
+  .chat-bot .chat-bot-sidebar {
+    display: none;
+  }
+}
+.chat-bot .chat-bot-sidebar .chat-bot-chat-history {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  height: 100%;
+}
+.chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item {
+  background: none;
+  border: none;
+  padding: 0.25em 0;
+  border-bottom: 1px solid #323c43;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item .icon {
+  color: #b0bcc4;
+  transition: all 0.2s ease-in-out;
+}
+.chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item .chat-bot-chat-history-button {
+  text-decoration: none;
+  color: #b0bcc4;
+  font-size: 1em;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+}
+.chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item .chat-bot-chat-history-button .icon {
+  margin-right: 0.5em;
+}
+.chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item .chat-bot-chat-history-button:hover {
+  color: #fed800;
+}
+.chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item .chat-bot-chat-history-button:hover .icon {
+  color: #fed800;
+}
+.chat-bot .prompt:not(:first-child) {
+  margin-top: 1em;
+}
+.chat-bot .prompt textarea {
+  background: none;
+  color: inherit;
+  border: none;
+  resize: none;
+  width: 100%;
+  height: 100%;
+  font-family: inherit;
+  display: flex;
+}
+.chat-bot .prompt textarea:focus {
+  background: none;
+  outline: none;
+}
+.chat-bot .prompt .prompt-text {
+  text-align: right;
+}
+.chat-bot .prompt .prompt-text .prompt-text-info {
+  color: #758b99;
+  font-weight: 500;
+  padding: 0.5em 0;
+}
+.chat-bot .prompt .prompt-text .prompt-text-content {
+  position: relative;
+  color: #f1f1f1;
+  background: #181d20;
+  border-radius: 1em;
+  box-shadow: 0em 1em 1em #161a1d;
+  border: 1px solid #1c2226;
+  white-space: pre-wrap;
+  padding: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-bot .prompt .prompt-text .prompt-text-content > div {
+  font-size: 1em;
+}
+.chat-bot .prompt .prompt-text .prompt-text-content .prompt-remove-btn {
+  color: #1c2226;
+  position: absolute;
+  right: 0.5em;
+  bottom: 0.5em;
+}
+.chat-bot .prompt .prompt-text .prompt-text-content textarea {
+  font-size: 1em;
+  width: 100%;
+  height: 100%;
+  line-height: 20px;
+}
+.chat-bot .prompt .prompt-response {
+  margin-top: 1em;
+}
+.chat-bot .prompt .prompt-response .prompt-text-info {
+  color: #758b99;
+  font-weight: 500;
+  padding: 0.5em 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  height: 3em;
+}
+.chat-bot .prompt .prompt-response .prompt-text-info .retry {
+  position: absolute;
+  right: 0;
+}
+.chat-bot .prompt .prompt-response .prompt-text-info .retry:hover {
+  animation: rotate 1s linear 1;
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.chat-bot .prompt .prompt-response .prompt-text-content {
+  transition: all 1s ease-in-out;
+  color: #f1f1f1;
+  background: #181d20;
+  border-radius: 1em;
+  box-shadow: 0em 1em 1em #161a1d;
+  border: 1px solid #1c2226;
+  white-space: pre-wrap;
+  padding: 1em;
+  position: relative;
+}
+.chat-bot .prompt .prompt-response .prompt-text-content > div {
+  font-size: 1em;
+}
+.chat-bot .prompt .prompt-response .prompt-text-content textarea {
+  font-size: 1em;
+  width: 100%;
+  height: 100%;
+  line-height: 20px;
+}
+.chat-bot .prompt .prompt-response .prompt-text-content .paperclip {
+  position: absolute;
+  z-index: 99;
+  right: 0.5em;
+  bottom: 0.5em;
+}
+.chat-bot .prompt-input {
+  display: grid;
+  grid-template-columns: 1fr 80px;
+  width: 100%;
+  height: auto;
+  padding: 1em;
+}
+.chat-bot .prompt-input .prompt-input-text {
+  background: #323c43;
+  box-shadow: 0em 1em 1em rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+.chat-bot .prompt-input .prompt-input-text textarea {
+  box-shadow: inset 0em 0em 1em rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: #999;
+  padding: 10px;
+  border-radius: 5px;
+  resize: none;
+}
+.chat-bot .prompt-input .prompt-input-text textarea:focus {
+  color: #fff;
+  outline: none;
+}
+.chat-bot .prompt-input .prompt-input-text textarea::-webkit-input-placeholder {
+  color: #758b99;
+}
+.chat-bot .prompt-input .prompt-input-action {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  transition: all 1s ease-in-out;
+  background: #475761;
+  box-shadow: inset 0em 0em 1em rgba(0, 0, 0, 0.2);
+}
+.chat-bot .prompt-input .prompt-input-action:hover {
+  background: #758b99;
+}
+.chat-bot .prompt-input .prompt-input-action:hover button {
+  background: none;
+  color: #f9c500;
+}
+.chat-bot .prompt-input .prompt-input-action button {
+  background: none;
+  color: #fedb00;
+  font-size: 1em;
+  font-weight: 300;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.chat-bot .prompt-input .prompt-input-action button:hover:not(.thinking) .icon {
+  animation: exit 0.5s ease-in-out 1;
+}
+@keyframes exit {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(200%);
+  }
+  51% {
+    transform: translateX(-200%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.chat-bot .prompt-input .prompt-input-action.thinking {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-bot .prompt-input .prompt-input-action.thinking .icon {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotateY(45deg);
+  }
+  to {
+    transform: rotateY(225deg);
+  }
+}
+.chat-bot .prompt:last-child .prompt-text .prompt-text-content {
+  position: relative;
+  padding-top: 2em;
+  background: #c28a11;
+}
+.chat-bot .prompt:last-child .prompt-text .prompt-text-content:before {
+  content: 'Edit Text below';
+  position: absolute;
+  font-size: 0.75em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1em 0;
+}
+.chat-bot .prompt:last-child .prompt-response .prompt-text-content {
+  position: relative;
+  padding-top: 2em;
+  background: #117bc2;
+}
+.chat-bot .prompt:last-child .prompt-response .prompt-text-content:before {
+  content: 'Edit Text below';
+  position: absolute;
+  font-size: 0.75em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1em 0;
+}
+/*# sourceMappingURL=style.css.map */

@@ -2,8 +2,8 @@
  * Entry Point for Vue
  */
 import { createApp } from "vue";
-import appContainer from "./src/app";
-import components from "./src/utility";
+import appContainer from "./src/app.js";
+import components from "./src/utility/index.js";
 
 const UI = {
     /**

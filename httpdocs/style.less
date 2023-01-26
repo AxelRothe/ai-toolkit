@@ -1,4 +1,5 @@
 @import "snackbar.css";
+@import "/assets/fonts/fonts.css";
 
 @color-a: #fed800;
 @color-b: #1c2226;
@@ -18,14 +19,14 @@
   box-sizing: border-box;
   padding: 0;
   margin:0;
-  font-family: 'SF Pro', sans-serif;
+  font-family: 'Overpass', sans-serif;
   font-size: 16px;
   line-height: 1.4;
   color: #f1f1f1;
   font-weight: 300;
 }
 pre {
-  font-family: 'SF Mono', sans-serif;
+  font-family: 'Overpass', sans-serif;
 }
 
 button {
@@ -146,13 +147,14 @@ input {
       flex-direction: column;
       align-items: flex-end;
       justify-content: flex-start;
-      padding: 4em 4em;
 
 
       .mobile-menu-chat-history {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         -ms-overflow-style: -ms-autohiding-scrollbar;
+
+        padding: 2em 4em;
 
         width: 100%;
         height: 100%;
@@ -162,11 +164,11 @@ input {
         font-size: 1.5em;
         font-weight: 300;
         color: @color-3;
-        margin-bottom: 1em;
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
+        padding-top: 2em;
       }
       .mobile-menu-chat-history-item {
         background: none;
@@ -201,13 +203,39 @@ input {
     height: 100%;
 
     .chat-bot-chat-id {
-      color: @color-a;
-      font-size: 1.5em;
-      font-family: 'SF Mono', monospace;
-      font-weight: 300;
-      padding: 0.5em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5em 1em;
       border: 1px solid @color-1;
       background: darken(@color-b, 1%);
+
+      .chat-bot-name {
+        color: @color-a;
+        font-size: 1.5em;
+        .icon {
+          margin-right: 0.5em;
+        }
+      }
+
+
+      .chat-bot-usage {
+        font-size: 0.5em;
+        font-weight: 300;
+        color: @color-3;
+        font-family: "Overpass", monospace;
+        margin-left: 0.5em;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+
+        .chat-bot-usage-remaining {
+          color: @color-4;
+          font-size: 1.5em;
+        }
+      }
     }
 
     .chat-bot-mobile-menu-button {
@@ -442,7 +470,6 @@ input {
           z-index:99;
           right: 0.5em;
           bottom: 0.5em;
-          color: @color-b;
         }
       }
 
@@ -461,6 +488,7 @@ input {
       background: @color-1;
       box-shadow: 0em 1em 1em rgba(0,0,0,0.2);
       border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
 
       textarea {
         box-shadow: inset 0em 0em 1em rgba(0,0,0,0.2);
@@ -552,11 +580,47 @@ input {
   .prompt:last-child {
     .prompt-text {
       .prompt-text-content {
+
+        position: relative;
+        padding-top: 2em;
+
+        &:before {
+          content : 'Edit Text below';
+          position: absolute;
+          font-size: 0.75em;
+          top:0;
+          left:0;
+          width: 100%;
+          color: rgba(0,0,0,0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1em 0;
+        }
+
         background: @color-d;
       }
     }
     .prompt-response {
       .prompt-text-content {
+
+        position: relative;
+        padding-top: 2em;
+
+        &:before {
+          content : 'Edit Text below';
+          position: absolute;
+          font-size: 0.75em;
+          top:0;
+          left:0;
+          width: 100%;
+          color: rgba(0,0,0,0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1em 0;
+        }
+
         background: @color-c;
       }
     }

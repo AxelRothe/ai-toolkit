@@ -1,5 +1,5 @@
 import axios from 'axios';
-import utils from './utility'
+import utils from './utility/index.js'
 
 export default {
     components: {
@@ -17,8 +17,8 @@ export default {
             <div class="mobile-menu-chat-history-item">
               <a class="chat-bot-mobile-menu-button" :href="'/'"><icon size="2" i="plus-circle-dotted"/> New</a>
             </div>
-            <div class="mobile-menu-chat-history-item" v-for="chat in chats">
-              <a class="chat-bot-mobile-menu-button" :href="'/chat/' + chat"><icon size="2" i="chat-fill"/> {{chat}}</a> <icon size="2" i="trash" @click="deleteChat(chat)"/>
+            <div class="mobile-menu-chat-history-item" v-for="(chat, index) in chats">
+              <a class="chat-bot-mobile-menu-button" :href="'/chat/' + chat"><icon size="2" :i="chat === chatId ? 'chat-fill' : 'chat'"/> {{chat}}</a> <icon size="2" i="trash" @click="deleteChat(chat)"/>
             </div>
           </div>
         </div>
@@ -30,7 +30,13 @@ export default {
           </div>
           
           <div class="chat-bot-chat-id">
-            <icon i="chat-fill"></icon> {{chatId ? chatId : "No Chat ID"}}
+            <div class="chat-bot-name">
+              <icon i="chat-fill"></icon> {{chatId ? chatId : "No Chat ID"}}
+            </div>
+            <div class="chat-bot-usage">
+              <div>{{getTotalHistoryCost}}$ / Unlimited</div>
+              <div class="chat-bot-usage-remaining">Token Usage</div>
+            </div>
           </div>
         </div>
 
@@ -110,6 +116,7 @@ export default {
         chats : [],
         settings: {
             typeSpeed: 50,
+            tokenCost: 0.00004,
         },
         textareas: {
             "textarea-prompt": {
@@ -160,26 +167,26 @@ export default {
         async send(event) {
             //check if shift is pressed then ignore
             if (event.shiftKey) return;
+                //remove last enter from prompt
+                this.input.prompt = this.input.prompt.replace(/\n$/, "");
 
-            //remove last enter from prompt
-            this.input.prompt = this.input.prompt.replace(/\n$/, "");
+                if (this.input.prompt.length === 0 || !this.allowInput) {
+                    utils.Snackbar("Please enter a prompt.");
+                    return;
+                }
+                this.allowInput = false;
+                if (this.history.length === 0) {
+                    this.chatId = await this.newChat(this.input.prompt);
+                    //set url
+                    window.history.pushState({}, "", "/chat/" + this.chatId);
+                    this.allowInput = true;
+                } else {
+                    await this.continueChat(this.chatId, this.input.prompt)
+                    this.allowInput = true;
+                }
 
-            if (this.input.prompt.length === 0 || !this.allowInput) {
-                utils.Snackbar("Please enter a prompt.");
-                return;
-            }
-            this.allowInput = false;
-            if (this.history.length === 0) {
-                this.chatId = await this.newChat(this.input.prompt);
-                //set url
-                window.history.pushState({}, "", "/chat/" + this.chatId);
-                this.allowInput = true;
-            } else {
-                await this.continueChat(this.chatId, this.input.prompt)
-                this.allowInput = true;
-            }
+                this.input.prompt = "";
 
-            this.input.prompt = "";
         },
         fetchChats() {
             return new Promise((resolve, reject) => {
@@ -209,19 +216,24 @@ export default {
                 })
             }
         },
-        appendToHistory(prompt, response, animate = false, index = -1) {
+        /**
+         * Attaches a new prompt and response to the chat history.
+         *
+         * @param entry { {prompt : string, response: string, usage: object} }
+         * @param animate Whether to animate the response.
+         * @param index (overwrite) The index to set the prompt and response to. If not set, it will be appended to the end.
+         */
+        appendToHistory(entry , animate = false, index = -1) {
 
             if (!animate) {
 
                 if (index === -1) {
                     this.history.push({
-                        prompt,
-                        response
+                        ...entry
                     });
                 } else {
                     this.history[index] = {
-                        prompt,
-                        response
+                        ...entry
                     }
                 }
                 this.scrollToBottom();
@@ -231,12 +243,17 @@ export default {
 
             if (index === -1) {
                 index = this.history.push({
-                    prompt,
+                    prompt: entry.prompt,
                     response: "",
+                    usage: {
+                        total_tokens:0,
+                        prompt_tokens:0,
+                        completion_tokens:0
+                    }
                 }) - 1;
             }
             //for each word or line break in response add a delay
-            const words = response.split(" ");
+            const words = entry.response.split(" ");
             let delay = 0;
             for (let i = 0; i < words.length; i++) {
                 delay += this.settings.typeSpeed;
@@ -247,6 +264,12 @@ export default {
                 }, delay);
             }
         },
+        /**
+         * Test if the token is valid.
+         * @throws Error if token is invalid.
+         * @param token
+         * @returns {Promise<true>}
+         */
         testToken(token = this.input.token){
             return new Promise((resolve, reject) => {
                 axios.get("/api/auth", {
@@ -262,10 +285,15 @@ export default {
                 })
             })
         },
-        async setToken(){
+        /**
+         * Sets the token and saves it to local storage.
+         * @param token {string} The token to set.
+         * @returns {Promise<void>}
+         */
+        async setToken(token = this.input.token){
             try {
                 await this.testToken();
-                this.token = this.input.token;
+                this.token = token;
                 localStorage.setItem("token", this.token);
                 await this.getPageFromURL();
                 await this.fetchChats();
@@ -297,7 +325,11 @@ export default {
                     }
                 }).then((response) => {
                     this.fetchChats();
-                    this.appendToHistory(text, response.data.response, true);
+                    this.appendToHistory({
+                        prompt: text,
+                        response: response.data.response,
+                        usage: response.data.usage
+                    }, true);
                     this.updateTextAreas();
                     resolve(response.data.id)
                 }).catch((error) => {
@@ -306,28 +338,51 @@ export default {
                 })
             })
         },
+        /**
+         * Continues a chat.
+         *
+         * @param chatId {string} The chat id to continue.
+         * @param text {string} The text to send.
+         * @returns {Promise<Chat>} The response.
+         */
         continueChat(chatId, text) {
             return new Promise((resolve, reject) => {
+
+                //Add Placeholder for response
                 const index = this.history.push({
                     prompt: text,
                     response: "Thinking...",
                 }) - 1
-                axios.post("/api/chat/"+ chatId, {
-                    prompt: text,
-                }, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("token"),
-                    }
-                }).then((response) => {
-                    this.history[index].response = '';
-                    this.appendToHistory(text, response.data.response, true, index);
+                this.updateTextAreas().then(() => {
+                    this.scrollToBottom(); //scroll to bottom
 
-                    resolve(response.data)
-                }).catch((error) => {
-                    reject(error);
-                    utils.Snackbar("Error continuing chat.");
-                })
+                    //send request
+                    axios.post("/api/chat/"+ chatId, {
+                        prompt: text,
+                    }, {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + localStorage.getItem("token"),
+                        }
+                    }).then((response) => {
+                        //clear response placeholder
+                        this.history[index].response = '';
+                        //set response to this index
+                        this.appendToHistory({
+                            prompt: text,
+                            response: response.data.response,
+                            usage: response.data.usage
+                        }, true, index);
+
+                        resolve(response.data)
+                    }).catch((error) => {
+                        reject(error);
+                        utils.Snackbar("Error continuing chat.");
+                    })
+
+                });
+
+
             })
         },
         getPreviousChat(chatId){
@@ -339,7 +394,10 @@ export default {
                     }
                 }).then(response=>{
                     response.data.thread.forEach(item=>{
-                        this.appendToHistory(item.prompt, item.response);
+
+                        this.appendToHistory({
+                            ...item
+                        });
                     })
                     resolve(response.data)
                 }).catch(error=>{
@@ -459,6 +517,19 @@ export default {
                 });
             }
 
-        }
+        },
+
     },
+    computed: {
+        /**
+         * Computes the chats history in token usage
+         * @returns {Number}
+         */
+        getTotalUsage(){
+            return this.history.reduce((total, chat) => total + (chat.usage ? chat.usage.total_tokens : 0), 0);
+        },
+        getTotalHistoryCost(){
+            return (this.getTotalUsage * this.settings.tokenCost).toFixed(2);
+        },
+    }
 };

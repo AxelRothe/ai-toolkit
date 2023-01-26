@@ -12,6 +12,10 @@ if (!tokenPath) throw new Error("No SERVER_TOKENS found in .env file")
 
 const tokens = JSON.parse(fs.readFileSync(tokenPath, "utf-8"));
 
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const logCall = (req, status = 100) => {
     logbot.log(status, "[" + req.method + "] " + req.originalUrl + " REQUESTEE: " + req.ip);
 }
@@ -103,19 +107,26 @@ export default function(program, core){
                 const id = Math.random().toString(36).substring(7);
 
                 const promptText = "Request:\n" + prompt + "\nResponse:\n";
-                core(model, promptText, temperature, max_tokens).then((response) => {
+                core.run('gpt-3', {
+                    prompt: promptText,
+                    temperature,
+                    max_tokens,
+                    model
+                }).then((response) => {
 
                     respond(req,res).status(200).send({
                         id,
                         prompt: promptText,
-                        response
+                        response: response.choices[0].text,
+                        usage: response.usage
                     });
                     const chat = {
                         id,
                         owner: req.get("authorization").split(" ")[1],
                         thread: [{
                             prompt,
-                            response
+                            response: response.choices[0].text,
+                            usage: response.usage
                         }]
                     };
                     //add new chat to chats
@@ -175,16 +186,23 @@ export default function(program, core){
                     history += "Request:\n"+message.prompt + "\nResponse:\n" + message.response+"\n";
                 })
                 const promptText = history + "Request:\n" + prompt + "\nResponse:\n";
-                core(model, promptText, temperature, max_tokens).then((response) => {
+                core.run('gpt-3', {
+                    prompt: promptText,
+                    temperature,
+                    max_tokens,
+                    model
+                }).then((response) => {
                     respond(req,res).status(200).send({
                         id,
                         prompt: promptText,
-                        response
+                        response: response.choices[0].text,
+                        usage: response.usage
                     });
                     //add new chat to chats
                     chat.thread.push({
                         prompt,
-                        response
+                        response: response.choices[0].text,
+                        usage: response.usage
                     });
                     //save the chat as json to the server as a file for later use
                     fs.writeFile(path.join(PATH_CACHE,"/chats/" , id + ".json"), JSON.stringify(chat), function (err) {
@@ -284,10 +302,12 @@ export default function(program, core){
                 if (!checkRequestAuthorization(req, res)) return;
 
                 const {model, prompt, temperature, max_tokens} = req.body;
-                core(model, prompt, temperature, max_tokens).then((response) => {
+                core.run('gpt-3', {
+                    prompt, temperature, max_tokens, model
+                }).then((response) => {
                     respond(req,res).status(200).send({
                         prompt,
-                        response
+                        response: response.choices[0].text
                     });
                 }).catch((err) => {
                     respond(req,res).status(500).send({error: err});

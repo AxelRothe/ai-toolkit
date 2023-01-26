@@ -8,8 +8,9 @@ export default function(program, core) {
         .alias('p')
         .description("Prompt the model")
         .option('-t, --temperature <temperature>', 'Temperature (not supported in chatGPT)', '0')
-        .option('-m, --max_tokens <max_tokens>', 'Max Tokens (not supported in chatGPT)', '100')
-        .option('-e, --engine <engine>', 'Engine model', 'chatgpt-unofficial')
+        .option('-m, --model <model>', 'The text model to use', 'text-davinci-003')
+        .option('-n, --max_tokens <max_tokens>', 'Max Tokens (not supported in chatGPT)', '1000')
+        .option('-e, --engine <engine>', 'Engine', 'gpt-3')
         .option("-j --json", "Output JSON", false)
         .action((i1,i2, options) => {
             const printResponse = (response) => {
@@ -28,7 +29,9 @@ export default function(program, core) {
             if (options.engine === "chatgpt") {
                 logbot.log(100, `🖋️Your Prompt:\n "${i1}"`)
 
-                core(options.engine, i1, options.temperature, options.max_tokens).then((r) => {
+                core.run(options.engine, {
+                    prompt: i1
+                }).then((r) => {
                     printResponse(r);
                     process.exit(0)
                 }).catch((e) => {
@@ -38,8 +41,11 @@ export default function(program, core) {
             } else {
                 const promptText = (!i2) ? i1 : `Do the following: ${i1}\n\nUsing the following content as reference:\n\n${i2}\n\nCompletion:`;
                 logbot.log(100, `🖋️Your Prompt:\n "${promptText}"`)
-                core(options.engine, promptText, options.temperature, options.max_tokens).then(r => {
-                    printResponse(r);
+                core.run(options.engine, {
+                    prompt: promptText,
+                    ...options
+                }).then(r => {
+                    printResponse(r.choices[0].text);
                     process.exit(0)
                 }).catch((e) => {
                     logbot.log(500, `❌ Error: ${e}`)

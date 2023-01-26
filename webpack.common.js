@@ -1,6 +1,8 @@
-const path = require("path");
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-module.exports = {
+export default {
     entry: {
         app: "./app/index.js"
     },
@@ -11,7 +13,7 @@ module.exports = {
     },
     output: {
         filename: "[name].js",
-        path: path.join(__dirname, "./httpdocs/build"),
+        path: __dirname + "/httpdocs/build",
         clean: true,
     },
 };

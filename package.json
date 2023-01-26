@@ -13,9 +13,9 @@
     "start": "npm run build && node build",
     "prepare": "npm run build"
   },
-  "keywords": [],
+  "keywords": ["ai", "toolkit", "openai", "deepva", "gui" , "cli"],
   "author": "Axel Rothe",
-  "homepage": "https://github.com/AxelRothe/ai-tools#readme",
+  "homepage": "https://github.com/AxelRothe/ai-toolkit#readme",
   "license": "GPL-3.0",
   "dependencies": {
     "axios": "^1.2.3",

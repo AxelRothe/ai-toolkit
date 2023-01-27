@@ -3,7 +3,8 @@
 This repository provides a comprehensive suite of tools for AI development, allowing for accelerated development of AI applications and unified tracking of token usage and billing information.
 ## Supported Tools
 
-- OpenAI Text Models
+- OpenAI GPT-3 Text Models ('text-davinci-003', 'ada', 'currie')
+- chatGPT
 - DeepVA (All Visual Mining Modules)
 
 ## Installation

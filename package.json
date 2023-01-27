@@ -1,6 +1,6 @@
 {
   "name": "ai-toolkit",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "provides an easy interface for interacting with the AI APIs",
   "bin": "./build/index.js",
   "main": "./build/index.js",

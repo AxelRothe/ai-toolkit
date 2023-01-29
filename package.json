@@ -11,7 +11,7 @@
     "build": "webpack --config webpack.dev.js && ncc build src/index.ts -o build -e [mod]",
     "server": "npm run build && node build server",
     "start": "npm run build && node build",
-    "prepare": "npm run build"
+    "postinstall": "npm run build"
   },
   "keywords": [
     "ai",

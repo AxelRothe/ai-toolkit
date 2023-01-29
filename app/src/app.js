@@ -7,7 +7,7 @@ export default {
     template: `
       <div class="no-token" v-if="!token">
         <h1><icon i="key-fill"/> No Token Detected</h1>
-        <input v-model="input.token" placeholder="Your Token"/><button @click="setToken"><icon i="unlock" /> Set Token</button>
+        <input v-model="input.token" placeholder="Your Token"/><button @click="setToken()"><icon i="unlock" /> Set Token</button>
         <div class="error" v-if="error && error.length > 0"><icon i="cone-striped" /> {{error}}</div>
       </div>
       <div v-else class="app chat-bot">

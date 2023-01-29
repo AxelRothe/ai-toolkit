@@ -313,9 +313,6 @@ input:focus {
   background: none;
   outline: none;
 }
-.chat-bot .prompt .prompt-text {
-  text-align: right;
-}
 .chat-bot .prompt .prompt-text .prompt-text-info {
   color: #758b99;
   font-weight: 500;

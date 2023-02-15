@@ -354,7 +354,8 @@ select:focus {
   width: 100%;
   display: grid;
   position: relative;
-  grid-template-rows: calc(100vh - 11em - 4em) 100px;
+  grid-template-rows: calc(100vh - 11em - 4em - 0.5em - 1em) 100px;
+  grid-gap: 1em;
 }
 .chat-bot .chat-bot-body-outer .chat-bot-body {
   height: 100%;
@@ -526,12 +527,13 @@ select:focus {
   box-shadow: 0em 1em 1em rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
-  padding-bottom: 2em;
+  padding-bottom: 1.75em;
 }
 .chat-bot .prompt-input .prompt-input-text .prompt-input-tokens {
   position: absolute;
-  bottom: 0.5em;
-  left: 1em;
+  bottom: 0;
+  left: 0;
+  padding: 0.5em;
   display: flex;
   align-items: center;
   font-size: 0.75em;
@@ -552,7 +554,9 @@ select:focus {
   background: none;
   color: #999;
   padding: 10px;
-  border-radius: 5px;
+  border-bottom-left-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+  border-bottom: 1px solid #475761;
   resize: none;
 }
 .chat-bot .prompt-input .prompt-input-text textarea:focus {

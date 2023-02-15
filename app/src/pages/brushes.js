@@ -6,15 +6,15 @@ export default {
   template: `
     <div class="brushes__container">
       <div class="brushes__row">
-        <div class="brushes__column">
-          <div class="brushes__column__row max-height">
+        <div class="brushes__column ">
+          <div class="brushes__column__row max-height input">
             <label>Input</label>
             <textarea v-model="input.text" class="form-control" placeholder="..."></textarea>
           </div>
         </div>
         <div class="brushes__column" v-if="state.allowSend">
 
-          <div class="brushes__column__row">
+          <div class="brushes__column__row ">
             <h1>{{state.brushId || "Unsaved Brush"}}</h1>
             <small>Brushes are a way to transform your input text into something else.</small>
           </div>

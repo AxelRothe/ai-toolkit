@@ -29,6 +29,8 @@ export default {
       pathname: "",
       query: {},
     },
+    baseAppName: "AIToolKit",
+    urlDelimiter: "–",
     pages: {
       chat: {
         title: "Chat",
@@ -110,6 +112,7 @@ export default {
       } else {
         this.currentPage = this.pages.chat;
       }
+      document.title = `${this.currentPage.title} ${this.urlDelimiter} ${this.baseAppName}`;
     },
   },
 };

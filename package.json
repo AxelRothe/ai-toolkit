@@ -36,6 +36,7 @@
     "logbotjs": "^1.3.1",
     "node-snackbar": "^0.1.16",
     "openai": "^3.1.0",
+    "pretty-ms": "^8.0.0",
     "vue": "^3.2.45",
     "webpack-merge": "^5.8.0"
   },

@@ -1,11 +1,15 @@
-# ai-tools - (Interactive) CLI, REST, and GUI tools for AI
+# ai-toolkit - CLI, REST, and GUI tools for AI
 
 This repository provides a comprehensive suite of tools for AI development, allowing for accelerated development of AI applications and unified tracking of token usage and billing information.
+
 ## Supported Tools
 
 - OpenAI GPT-3 Text Models ('text-davinci-003', 'ada', 'currie')
 - chatGPT
 - DeepVA (All Visual Mining Modules)
+
+> **Note**
+> This project currently does not have a native database interface.
 
 ## Installation
 

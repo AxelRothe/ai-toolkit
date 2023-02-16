@@ -378,35 +378,40 @@ export default function (program, core) {
       app.post("/api/prompt", (req, res) => {
         if (!checkRequestAuthorization(req, res)) return;
 
-        const { model, prompt, temperature, max_tokens, input, instruction } =
-          req.body;
-        core
-          .run("gpt-3", {
-            token: req.get("authorization").split(" ")[1],
-            prompt,
-            temperature,
-            max_tokens,
-            model,
-            input,
-            instruction,
-          })
-          .then((response) => {
-            if (response.status === 200) {
-              respond(req, res).status(200).send({
-                prompt,
-                response: response.result.choices[0].text,
-                usage: response.result.usage,
-              });
-            } else {
-              respond(req, res).status(response.status).send({
-                error: response.result,
-              });
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            respond(req, res).status(500).send({ error: err });
-          });
+        try {
+          const { model, prompt, temperature, max_tokens, input, instruction } =
+            req.body;
+          core
+            .run("gpt-3", {
+              token: req.get("authorization").split(" ")[1],
+              prompt,
+              temperature,
+              max_tokens,
+              model,
+              input,
+              instruction,
+            })
+            .then((response) => {
+              if (response.status === 200) {
+                respond(req, res).status(200).send({
+                  prompt,
+                  response: response.result.choices[0].text,
+                  usage: response.result.usage,
+                });
+              } else {
+                respond(req, res).status(response.status).send({
+                  error: response.result,
+                });
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+              respond(req, res).status(500).send({ error: err });
+              return;
+            });
+        } catch (e) {
+          respond(req, res).status(500).send({ error: e });
+        }
       });
 
       app.post("/api/brush/", (req, res) => {

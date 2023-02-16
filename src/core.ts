@@ -77,7 +77,6 @@ class AICore {
 
   async runOpenAI(options): Promise<any> {
     if (!this.openai) throw new Error("OpenAI not available");
-    console.log(options);
     try {
       let response;
 

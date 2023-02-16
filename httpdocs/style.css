@@ -15,7 +15,7 @@ pre {
 }
 small {
   font-size: 0.75em;
-  color: #b0bcc4;
+  color: #bec8cf;
 }
 h1,
 h2,
@@ -23,10 +23,13 @@ h3,
 h4,
 h5,
 h6 {
-  display: block;
   margin-bottom: 0.5em;
   border-bottom: 1px solid #323c43;
   padding-bottom: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 label {
   display: block;
@@ -43,7 +46,7 @@ html,
   color: inherit;
 }
 .icon.icon-button {
-  color: #b0bcc4;
+  color: #bec8cf;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
@@ -69,7 +72,7 @@ h5 {
   display: flex;
   align-items: center;
   margin: 0 0 0.5em 0;
-  color: #758b99;
+  color: #687e8d;
 }
 h1 > .icon:first-child,
 h2 > .icon:first-child,
@@ -85,14 +88,14 @@ h5 > .icon:first-child {
 ::-webkit-scrollbar-track {
   background: #323c43;
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  border: 1px solid #475761;
+  border: 1px solid #3c4952;
 }
 ::-webkit-scrollbar-thumb {
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
-  background-color: #475761;
+  background-color: #3c4952;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #475761;
+  background-color: #3c4952;
 }
 body,
 html {
@@ -112,25 +115,35 @@ button {
   justify-content: center;
 }
 .btn__container {
+  box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.25);
+  position: relative;
+  transition: all 0.2s ease-in-out;
+}
+.btn__container button,
+.btn__container a {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   text-align: center;
   background-color: #323c43;
-  border: 1px solid #475761;
-  color: #758b99;
+  border: 1px solid #3c4952;
+  color: #687e8d;
   font-weight: 400;
   text-decoration: none;
-  transition: all 0.2s ease-in-out;
   cursor: pointer;
-  box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.25);
-}
-.btn__container button {
   box-shadow: inset 0 0 1em 5px #1c2226;
+  padding: 0.5em 0.5em;
 }
-.btn__container .action {
-  border-color: #fed800;
+.btn__container button .icon,
+.btn__container a .icon {
+  color: #bec8cf;
+}
+.btn__container .action .icon {
+  color: #fed800;
+}
+.btn__container .action .content {
+  color: #fed800;
 }
 .btn__container .content {
   font-size: 0.75em;
@@ -139,26 +152,31 @@ button {
   margin-right: 0.5em;
 }
 .btn__container:hover {
-  background-color: #475761;
+  background-color: #3c4952;
   text-decoration: none;
 }
 .btn__container:active {
-  background-color: #758b99;
+  background-color: #687e8d;
   text-decoration: none;
   transform: translateY(1px);
 }
+.btn__confirmation__dialog {
+  position: absolute;
+}
 input {
-  background: none;
-  padding: 0.5em;
+  background: #3c4952;
+  padding: 0.25em 0.5em;
   color: #f1f1f1;
   font-size: 16px;
   font-weight: 300;
   outline: none;
   transition: all 0.2s ease-in-out;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #687e8d;
+  max-width: 100%;
+  width: 100%;
 }
 input:focus {
-  background: #475761;
+  background: #3c4952;
 }
 .form-group {
   display: flex;
@@ -244,7 +262,7 @@ select:focus {
 .chat-bot .chat-bot-mobile-menu.active .chat-bot-mobile-menu-title {
   font-size: 1.5em;
   font-weight: 300;
-  color: #758b99;
+  color: #687e8d;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -259,11 +277,11 @@ select:focus {
   justify-content: space-between;
 }
 .chat-bot .chat-bot-mobile-menu.active .mobile-menu-chat-history-item .icon {
-  color: #b0bcc4;
+  color: #bec8cf;
 }
 .chat-bot .chat-bot-mobile-menu.active .mobile-menu-chat-history-item .chat-bot-mobile-menu-button {
   text-decoration: none;
-  color: #b0bcc4;
+  color: #bec8cf;
   font-size: 3em;
   outline: none;
   transition: all 0.2s ease-in-out;
@@ -293,7 +311,7 @@ select:focus {
 }
 .chat-bot .chat-bot-information .chat-bot-chat-id .chat-bot-usage {
   font-weight: 300;
-  color: #758b99;
+  color: #687e8d;
   font-family: "Overpass", monospace;
   margin-left: 0.5em;
   display: flex;
@@ -308,7 +326,7 @@ select:focus {
   align-items: center;
   justify-content: center;
   font-weight: 300;
-  color: #758b99;
+  color: #687e8d;
   font-size: 0.75em;
   font-family: "Overpass", monospace;
 }
@@ -387,12 +405,12 @@ select:focus {
   justify-content: space-between;
 }
 .chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item .icon {
-  color: #b0bcc4;
+  color: #bec8cf;
   transition: all 0.2s ease-in-out;
 }
 .chat-bot .chat-bot-sidebar .chat-bot-chat-history .chat-bot-chat-history-item .chat-bot-chat-history-button {
   text-decoration: none;
-  color: #b0bcc4;
+  color: #bec8cf;
   font-size: 1em;
   outline: none;
   transition: all 0.2s ease-in-out;
@@ -417,14 +435,14 @@ select:focus {
   position: absolute;
   right: 1em;
   top: 1em;
-  color: #b0bcc4;
+  color: #bec8cf;
   font-size: 0.75em !important;
 }
 .chat-bot .prompt .token-cost .icon {
   margin-right: 0.5em;
 }
 .chat-bot .prompt .prompt-text .prompt-text-info {
-  color: #758b99;
+  color: #687e8d;
   font-weight: 500;
   padding: 0.5em 0;
 }
@@ -463,7 +481,7 @@ select:focus {
   margin-top: 1em;
 }
 .chat-bot .prompt .prompt-response .prompt-text-info {
-  color: #758b99;
+  color: #687e8d;
   font-weight: 500;
   padding: 0.5em 0;
   display: flex;
@@ -556,7 +574,7 @@ select:focus {
   padding: 10px;
   border-bottom-left-radius: 0.5em;
   border-bottom-right-radius: 0.5em;
-  border-bottom: 1px solid #475761;
+  border-bottom: 1px solid #3c4952;
   resize: none;
 }
 .chat-bot .prompt-input .prompt-input-text textarea:focus {
@@ -564,18 +582,18 @@ select:focus {
   outline: none;
 }
 .chat-bot .prompt-input .prompt-input-text textarea::-webkit-input-placeholder {
-  color: #758b99;
+  color: #687e8d;
 }
 .chat-bot .prompt-input .prompt-input-action {
   display: flex;
   justify-content: center;
   flex-direction: column;
   transition: all 1s ease-in-out;
-  background: #475761;
+  background: #3c4952;
   box-shadow: inset 0em 0em 1em rgba(0, 0, 0, 0.2);
 }
 .chat-bot .prompt-input .prompt-input-action:hover {
-  background: #758b99;
+  background: #687e8d;
 }
 .chat-bot .prompt-input .prompt-input-action:hover button {
   background: none;
@@ -785,7 +803,7 @@ select:focus {
 .brushes__container .brushes__row .brushes__column .brushes__column__row textarea {
   background: #323c43;
   box-shadow: 0em 1em 1em #1c2226;
-  border: 1px solid #475761;
+  border: 1px solid #3c4952;
   padding: 0.25em;
   font-size: 0.8em;
 }

@@ -15,8 +15,15 @@ export default {
         <div class="brushes__column" v-if="state.allowSend">
 
           <div class="brushes__column__row ">
-            <h1>{{state.brushId || "Unsaved Brush"}}</h1>
+            <h1>{{state.brushId || "Unsaved Brush"}} <btn i="plus-circle" to="/brushes/">New</btn></h1> 
             <small>Brushes are a way to transform your input text into something else.</small>
+          </div>
+          <div class="brushes__column__row">
+            <div class="form-group">
+              <input type="text" v-model="input.title" placeholder="Title"/>
+              <btn i="save" @click="saveBrush">Save</btn>
+              <btn i="trash" :action="deleteBrush" v-if="state.brushId">Delete</btn>
+            </div>
           </div>
           <div class="brushes__column__row instructions">
             <label>Instruction</label>
@@ -24,7 +31,7 @@ export default {
             <small>What should the AI do?</small>
           </div>
           <div class="brushes__column__row">
-            <label>Type</label>
+            <label>Model</label>
             <select v-model="input.model" class="form-control">
                 <option v-for="model in state.models" :value="model">{{model.name}}</option>
             </select> 
@@ -41,12 +48,6 @@ export default {
               <btn i="stars" @click="clearOutput">Clear Out</btn>
             </div>
             <div class="brushes__quick-access">
-            </div>
-          </div>
-          <div class="brushes__column__row">
-            <div class="form-group"><input type="text" v-model="input.title" placeholder="Title"/>
-            <btn i="save" @click="saveBrush">Save</btn>
-            <btn i="trash" @click="deleteBrush">Delete</btn>
             </div>
           </div>
           <div class="brushes__column__row brushes__saved">
@@ -108,20 +109,21 @@ export default {
         brushes: [],
         models: [
           {
-            name: "Create",
+            name: "Transmogrify",
             value: "text-davinci-003",
-            description: "Use this model to generate creative text.",
-          },
-          {
-            name: "Edit",
-            value: "text-davinci-edit-001",
-            description: "Use this model to edit text, e.g. to fix typos.",
-          },
-          {
-            name: "Code",
-            value: "code-davinci-edit-001",
             description:
-              "Use this model to generate, document or explain code.",
+              "Use this model to generate, translate or modify text within a given context or to explain code.",
+          },
+          {
+            name: "Edit & Replace",
+            value: "text-davinci-edit-001",
+            description:
+              "Use this model to edit text, e.g. to fix typos, replace words etc.",
+          },
+          {
+            name: "Coding",
+            value: "code-davinci-002",
+            description: "Use this model to generate, edit or document code.",
           },
         ],
       },
@@ -188,7 +190,7 @@ export default {
         input: `${text}`,
         instruction: `${instruction}`,
       };
-      if (this.input.model.value === "text-davinci-003") {
+      if (this.input.model.value !== "text-davinci-edit-001") {
         options = {
           model: this.input.model.value,
           prompt: `Data: ${text} Instructions: ${instruction} Result:`,

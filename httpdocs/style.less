@@ -6,9 +6,9 @@
 @color-c: #117bc2;
 @color-d: #c28a11;
 @color-1: lighten(@color-b, 10%);
-@color-2: lighten(@color-1, 10%);
+@color-2: lighten(@color-1, 5%);
 @color-3: lighten(@color-2, 20%);
-@color-4: lighten(@color-3, 20%);
+@color-4: lighten(@color-3, 30%);
 
 @screen-xs: 375px;
 @screen-sm: 768px;
@@ -35,10 +35,13 @@ small {
 }
 
 h1,h2,h3,h4,h5,h6 {
-  display: block;
   margin-bottom: 0.5em;
   border-bottom: 1px solid @color-1;
   padding-bottom: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 label {
@@ -129,24 +132,35 @@ button {
 
 
 .btn__container {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background-color: @color-1;
-  border: 1px solid @color-2;
-  color: @color-3;
-  font-weight: 400;
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
   box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.25);
-  button{
+  position: relative;
+  transition: all 0.2s ease-in-out;;
+  button,a {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: @color-1;
+    border: 1px solid @color-2;
+    color: @color-3;
+    .icon {
+      color: @color-4;
+    }
+    font-weight: 400;
+    text-decoration: none;
+    cursor: pointer;
     box-shadow: inset 0 0 1em 5px @color-b;
+    padding: 0.5em 0.5em;
   }
   .action {
-    border-color: @color-a
+    .icon {
+
+      color: @color-a;
+    }
+    .content {
+      color: @color-a;
+    }
   }
   .content{
     font-size: 0.75em;
@@ -166,20 +180,25 @@ button {
     transform: translateY(1px);
   }
 }
+.btn__confirmation__dialog {
+  position: absolute;
+}
 
 
 input {
-    background: none;
-    padding: 0.5em;
+    background: @color-2;
+    padding: 0.25em 0.5em;
     color: #f1f1f1;
     font-size: 16px;
     font-weight: 300;
     outline: none;
     transition: all 0.2s ease-in-out;
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid @color-3;
     &:focus {
         background: @color-2;
     }
+    max-width: 100%;
+  width: 100%;
 }
 
 .form-group {

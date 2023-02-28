@@ -1,13 +1,9 @@
-/**
- * OpenAI GPT-3 Command Line Interface
- * Written by: @AxelRothe
- * License: MIT
- * Version: 1.0.0
- **/
-import {program} from 'commander'
+import { program } from "commander";
 import commands from "./commands";
-import core from "./core";
+import core from "./AICore";
 
-commands(program, core);
+core.init().then(() => {
+  commands(program, core);
 
-program.parse(process.argv)
+  program.parse(process.argv);
+});

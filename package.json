@@ -1,7 +1,7 @@
 {
   "name": "ai-toolkit",
   "version": "1.3.2",
-  "description": "provides an easy interface for interacting with the AI APIs",
+  "description": "prompt various AIs and track usage statistics",
   "bin": "./build/index.js",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -11,7 +11,8 @@
     "build": "webpack --config webpack.dev.js && ncc build src/index.ts -o build -e [mod]",
     "server": "npm run build && node build server",
     "start": "npm run build && node build",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "test": "mocha test/index.js"
   },
   "keywords": [
     "ai",
@@ -25,15 +26,17 @@
   "homepage": "https://github.com/AxelRothe/ai-toolkit#readme",
   "license": "GPL-3.0",
   "dependencies": {
+    "alephalphajs": "^1.1.1",
     "axios": "^1.2.3",
-    "chatgpt-io": "^1.0.9",
     "commander": "^10.0.0",
     "deepvajs": "^1.0.1",
     "dotenv": "^16.0.3",
     "enquirer": "^2.3.6",
     "express": "^4.18.2",
+    "handlebars": "^4.7.7",
     "inquirer": "^9.1.4",
     "logbotjs": "^1.3.1",
+    "ninoxjs": "^1.4.1",
     "node-snackbar": "^0.1.16",
     "openai": "^3.1.0",
     "pretty-ms": "^8.0.0",
@@ -44,6 +47,7 @@
     "@tsconfig/recommended": "^1.0.2",
     "@types/node": "^18.11.18",
     "@vercel/ncc": "^0.36.0",
+    "mocha": "^10.2.0",
     "typescript": "^4.9.4",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1"

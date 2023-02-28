@@ -1,78 +1,98 @@
 import axios from "axios";
 import utils from "../utils/index.js";
+import Handlebars from "handlebars";
 
 export default {
   name: "brushes",
   template: `
     <div class="brushes__container">
-      <div class="brushes__row">
-        <div class="brushes__column ">
-          <div class="brushes__column__row max-height input">
-            <label>Input</label>
-            <textarea v-model="input.text" class="form-control" placeholder="..."></textarea>
-          </div>
+    <div class="brushes__row">
+      <div class="brushes__column ">
+        <div class="brushes__column__row max-height input">
+          <label>Input</label>
+          <textarea v-model="input.text" class="form-control" placeholder="..."></textarea>
         </div>
-        <div class="brushes__column" v-if="state.allowSend">
+      </div>
+      <div class="brushes__column" v-if="state.allowSend">
 
-          <div class="brushes__column__row ">
-            <h1>{{state.brushId || "Unsaved Brush"}} <btn i="plus-circle" to="/brushes/">New</btn></h1> 
-            <small>Brushes are a way to transform your input text into something else.</small>
+        <div class="brushes__column__row ">
+          <h1>{{ state.brushId || "Unsaved Brush" }}
+            <btn i="plus-circle" to="/brushes/">New</btn>
+          </h1>
+          <small>Brushes are a way to transform your input text into something else.</small>
+        </div>
+        <div class="brushes__column__row">
+          <div class="form-group">
+            <input type="text" v-model="input.title" placeholder="Title"/>
+            <btn i="save" @click="saveBrush">Save</btn>
+            <btn i="trash" :action="deleteBrush" v-if="state.brushId">Delete</btn>
           </div>
-          <div class="brushes__column__row">
-            <div class="form-group">
-              <input type="text" v-model="input.title" placeholder="Title"/>
-              <btn i="save" @click="saveBrush">Save</btn>
-              <btn i="trash" :action="deleteBrush" v-if="state.brushId">Delete</btn>
-            </div>
-          </div>
-          <div class="brushes__column__row instructions">
-            <label>Instruction</label>
-            <textarea v-model="input.instruction" class="form-control" rows=10 placeholder="..."></textarea>
-            <small>What should the AI do?</small>
-          </div>
-          <div class="brushes__column__row">
-            <label>Model</label>
-            <select v-model="input.model" class="form-control">
-                <option v-for="model in state.models" :value="model">{{model.name}}</option>
-            </select> 
-            <small>{{input.model.description}}</small>
-          </div>
-          <div :class="['brushes__column__row center apply-btn', {'thinking': !state.allowSend}]">
-            <btn primary @click="applyBrush(input.text, input.instruction)" i="brush" v-if="state.allowSend">Apply Brush</btn>
-          </div>
-          <div class="brushes__column__row ">
-            <h2>Tools</h2>
-            <div class="brushes__quick-access">
-              <btn i="stars" @click="clearInput">Clear In</btn>
-              <btn i="arrow-left-square-fill" @click="copyOutputToInput">Copy & Paste</btn>
-              <btn i="stars" @click="clearOutput">Clear Out</btn>
-            </div>
-            <div class="brushes__quick-access">
-            </div>
-          </div>
-          <div class="brushes__column__row brushes__saved">
-            <h2>Saved Brushes</h2>
-            <div class="brushes__saved__list">
-                <a v-for="brush in state.brushes" class="brushes__saved__list__brush" :href="'/brushes/'+brush.id">
-                  <icon i="brush"/>{{brush.title}}
-                </a>
+        </div>
+        <div class="brushes__column__row instructions">
+          <label>Instruction</label>
+          <textarea v-model="input.instruction" class="form-control" rows=5 placeholder="..."
+                    @keyup="updateInstruction"></textarea>
+          <small>What should the AI do?</small>
+          <div>
+            <input v-model="input.drop.key"><input v-model="input.drop.value">
+            <btn i="plus-circle" @click="setDrop(input.drop.key, input.drop.value)">Add Drop</btn>
+            <div v-for="drop in state.drops">
+              <div class="drop">
+                <div class="drop__key">
+                  <icon></icon>
+                  {{ drop.index }}
+                </div>
+                <div class="drop__value"><input v-model="drop.value"></div>
+              </div>
             </div>
           </div>
         </div>
-        <div v-else class="brushes__column ">
-          <div class="full__flex__center icon__spinning">
-            <icon size="4" i="diamond-half"/>
-            <label>{{utils.prettyMs(this.state.timeRequested)}}</label>
+        <div class="brushes__column__row">
+          <label>Model</label>
+          <select v-model="input.model" class="form-control">
+            <option v-for="model in state.models" :value="model">{{ model.name }}</option>
+          </select>
+          <small>{{ input.model.description }}</small>
+        </div>
+        <div :class="['brushes__column__row center apply-btn', {'thinking': !state.allowSend}]">
+          <btn primary @click="applyBrush(input.text, input.instruction)" i="brush" v-if="state.allowSend">Apply Brush
+          </btn>
+        </div>
+        <div class="brushes__column__row ">
+          <h2>Tools</h2>
+          <div class="brushes__quick-access">
+            <btn i="stars" @click="clearInput">Clear In</btn>
+            <btn i="arrow-left-square-fill" @click="copyOutputToInput">Copy & Paste</btn>
+            <btn i="stars" @click="clearOutput">Clear Out</btn>
+          </div>
+          <div class="brushes__quick-access">
           </div>
         </div>
-        <div class="brushes__column output" >
-          <div class="brushes__column__row max-height">
-            <label>Output</label>
-            <textarea v-model="input.output" class="form-control " placeholder="..." @change="saveOutputToCache"></textarea>
-            <icon class="icon-button paperclip" size=2 i="paperclip" @click="copyToClipboard(input.output)"></icon>
+        <div class="brushes__column__row brushes__saved">
+          <h2>Saved Brushes</h2>
+          <div class="brushes__saved__list">
+            <a v-for="brush in state.brushes" class="brushes__saved__list__brush" :href="'/brushes/'+brush.id">
+              <icon i="brush"/>
+              {{ brush.title }}
+            </a>
           </div>
         </div>
       </div>
+      <div v-else class="brushes__column ">
+        <div class="full__flex__center icon__spinning">
+          <icon size="4" i="diamond-half"/>
+          <label>{{ utils.prettyMs(this.state.timeRequested) }}</label>
+        </div>
+      </div>
+      <div class="brushes__column output">
+        <div class="brushes__column__row max-height">
+          <label>Output</label>
+          <textarea v-model="input.output" class="form-control " placeholder="..."
+                    @change="saveOutputToCache"></textarea>
+          <icon class="icon-button paperclip" size=2 i="paperclip" @click="copyToClipboard(input.output)"></icon>
+        </div>
+      </div>
+    </div>
     </div>
   `,
   props: {
@@ -101,18 +121,23 @@ export default {
         instruction: "",
         model: "",
         output: "",
+        drop: {
+          key: "",
+          value: "",
+        },
       },
       state: {
         timeRequested: 0,
         allowSend: true,
         brushId: undefined,
         brushes: [],
+        drops: [],
         models: [
           {
             name: "Transmogrify",
             value: "text-davinci-003",
             description:
-              "Use this model to generate, translate or modify text within a given context or to explain code.",
+              "Use this model to generate, translate or modify text or code.",
           },
           {
             name: "Edit & Replace",
@@ -123,7 +148,7 @@ export default {
           {
             name: "Coding",
             value: "code-davinci-002",
-            description: "Use this model to generate, edit or document code.",
+            description: "Use this model to edit code. This is experimental.",
           },
         ],
       },
@@ -137,6 +162,7 @@ export default {
         this.setBrush(this.query);
       }
       this.loadInputOutputFromCache();
+      this.loadDropsFromCache();
     });
   },
   methods: {
@@ -308,6 +334,46 @@ export default {
     loadInputOutputFromCache() {
       this.input.text = localStorage.getItem("input") || "";
       this.input.output = localStorage.getItem("output") || "";
+    },
+    loadDropsFromCache() {
+      this.state.drops = JSON.parse(localStorage.getItem("drops")) || [];
+      console.log(this.state.drops);
+    },
+    saveDropsToCache() {
+      localStorage.setItem("drops", JSON.stringify(this.state.drops));
+    },
+    setDrop(index, value) {
+      const drop = this.state.drops.find((drop) => drop.index === index);
+      if (!drop) {
+        this.state.drops.push({ index, value });
+      } else {
+        drop.value = value;
+      }
+      this.saveDropsToCache();
+    },
+    removeDrop(index) {
+      this.input.drops.splice(index, 1);
+      this.saveDropsToCache();
+    },
+    /**
+     * This function will will replace all the drops in the input with the values from the drops array.
+     * but will check using regex if there is a closed handlebar {{.*}} in the input.
+     */
+    updateInstruction() {
+      const template = Handlebars.compile(this.input.instruction);
+
+      //check using regex if there is a closed handlebar {{.*}} in the input.
+      const regex = /{{.*}}/g;
+      const found = this.input.instruction.match(regex);
+      if (found) {
+        // Create a new array with the values of the drops
+        const drops = utils.convertSerialToObj(
+          this.state.drops,
+          "index",
+          "value"
+        );
+        this.input.instruction = template(drops);
+      }
     },
   },
 };

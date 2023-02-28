@@ -10,7 +10,16 @@ const prettyMs = (ms) => {
   }
 };
 
+const convertSerialToObj = (arr, index, value) => {
+  let resultObj = {};
+  arr.forEach((item) => {
+    resultObj[item[index]] = item[value];
+  });
+  return resultObj;
+};
+
 export default {
   Snackbar,
   prettyMs,
+  convertSerialToObj,
 };

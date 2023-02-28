@@ -1,5 +1,7 @@
 # ai-toolkit - CLI, REST, and GUI tools for AI
 
+![GitHub](https://img.shields.io/github/license/AxelRothe/ai-toolkit)
+![GitHub last commit](https://img.shields.io/github/last-commit/AxelRothe/ai-toolkit)
 
 
 This repository provides a comprehensive suite of tools for AI development, allowing for accelerated development of AI applications and unified tracking of token usage and billing information.

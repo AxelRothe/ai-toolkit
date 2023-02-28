@@ -1,16 +1,18 @@
 # ai-toolkit - CLI, REST, and GUI tools for AI
 
+
+
 This repository provides a comprehensive suite of tools for AI development, allowing for accelerated development of AI applications and unified tracking of token usage and billing information.
 
 ## Supported Tools
 
 - OpenAI GPT-3 Text Models ('text-davinci-003', 'ada', 'currie')
-- chatGPT
 - DeepVA (All Visual Mining Modules)
+- Aleph Alpha (All Modules & Multi Modality)
 
 > **Note**
-> This project currently does not have a native database interface.
-
+> We currently only support JSON and NinoxDB. We are working on adding support for other databases.
+ 
 ## Installation
 
 Install the repository via npm if you want to incorporate it into existing tool chains, or clone the repository if you plan to use it as a standalone application.
@@ -93,7 +95,7 @@ You will need to add a Authorization Token via the Bearer in order to connect to
 Run a prompt with the following endpoint:
 
 ```
-POST /api/prompt
+POST /api/prompt/:engine
 {
     "prompt": "my prompt",
     "temperature": 0.5,

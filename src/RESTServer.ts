@@ -53,9 +53,9 @@ export default class RESTServer {
     this.brushes = [];
 
     this.app = express();
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(express.static(path.join(__dirname, "..", "/httpdocs/")));
+    this.app.use(bodyParser.json({ limit: "10mb" }));
+    this.app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
     //load chats from cache
     fs.readdirSync(path.join(this.PATH_CACHE, "/chats/")).forEach((file) => {
